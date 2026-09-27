@@ -28,6 +28,22 @@ PUBLIC_HOST="${MTPROXY_PUBLIC_HOST:-}"
 CLIENT_PORT="${MTPROXY_PORT:-443}"
 STATS_PORT="${MTPROXY_STATS_PORT:-8888}"
 WORKERS="${MTPROXY_WORKERS:-1}"
+DRY_RUN="${MTPROXY_DRY_RUN:-0}"
+
+for argument in "$@"; do
+    case "${argument}" in
+        --dry-run) DRY_RUN="1" ;;
+        --help|-h)
+            printf 'Usage: sudo bash install.sh [--dry-run]\n'
+            printf '  --dry-run  Test the interactive flow without changing the system.\n'
+            exit 0
+            ;;
+        *)
+            printf 'Unknown option: %s\n' "${argument}" >&2
+            exit 2
+            ;;
+    esac
+done
 
 # A piped one-line install has no interactive terminal. Use safe defaults in
 # that mode instead of trying to read prompts from the script stream.
@@ -93,6 +109,8 @@ msg() {
         zh:config_file) printf '配置目录：%s' "${CONFIG_DIR}" ;;
         zh:upgrade_note) printf '如需升级官方源码，可重新运行：MTPROXY_UPGRADE=1 sudo -E bash install.sh' ;;
         zh:firewall_note) printf '请确保云厂商安全组和系统防火墙放行客户端端口 %s；统计端口默认仅供本机访问。' "${CLIENT_PORT}" ;;
+        zh:dry_run) printf '模拟运行模式：不会安装依赖、编译源码、写入系统目录或启动服务。' ;;
+        zh:dry_run_done) printf '模拟运行完成。上面的配置只用于测试交互，没有任何系统改动。' ;;
         en:language_prompt) printf 'Choose language / 选择语言 / انتخاب زبان [1-3, default 1]: ' ;;
         en:invalid_choice) printf 'Invalid choice. Please try again.' ;;
         en:home_title) printf 'MTProxy One-Click Installer' ;;
@@ -136,6 +154,8 @@ msg() {
         en:config_file) printf 'Configuration directory: %s' "${CONFIG_DIR}" ;;
         en:upgrade_note) printf 'To upgrade the official source, run: MTPROXY_UPGRADE=1 sudo -E bash install.sh' ;;
         en:firewall_note) printf 'Allow client port %s in your cloud security group and firewall; the stats port is local-only by default.' "${CLIENT_PORT}" ;;
+        en:dry_run) printf 'Dry-run mode: no dependencies, source build, system files, or services will be changed.' ;;
+        en:dry_run_done) printf 'Dry run complete. The values above were only used to test the interaction; no system changes were made.' ;;
         fa:language_prompt) printf 'زبان را انتخاب کنید / Choose language / 选择语言 [۱ تا ۳، پیش‌فرض ۱]: ' ;;
         fa:invalid_choice) printf 'انتخاب نامعتبر است؛ دوباره تلاش کنید.' ;;
         fa:home_title) printf 'نصب‌کنندهٔ یک‌کلیکی MTProxy' ;;
@@ -179,6 +199,8 @@ msg() {
         fa:config_file) printf 'پوشهٔ پیکربندی: %s' "${CONFIG_DIR}" ;;
         fa:upgrade_note) printf 'برای ارتقای کد رسمی اجرا کنید: MTPROXY_UPGRADE=1 sudo -E bash install.sh' ;;
         fa:firewall_note) printf 'پورت %s را در فایروال و security group باز کنید؛ پورت آمار به‌صورت پیش‌فرض فقط محلی است.' "${CLIENT_PORT}" ;;
+        fa:dry_run) printf 'حالت آزمایشی: هیچ وابستگی، کد، فایل سیستمی یا سرویسی تغییر نمی‌کند.' ;;
+        fa:dry_run_done) printf 'اجرای آزمایشی کامل شد. مقادیر بالا فقط برای تست تعامل بودند و تغییری در سیستم ایجاد نشد.' ;;
         *) printf '%s' "${key}" ;;
     esac
 }
@@ -224,6 +246,9 @@ show_homepage() {
     printf '%s\n' "$(msg upstream)"
     printf '%s\n' "$(msg official_docs)"
     printf '%s\n' "$(msg not_official)"
+    if [[ "${DRY_RUN}" == "1" ]]; then
+        printf '%s\n' "$(msg dry_run)"
+    fi
     printf '============================================================\n\n'
 
     if [[ "${NONINTERACTIVE}" != "1" ]]; then
@@ -232,6 +257,7 @@ show_homepage() {
 }
 
 require_root() {
+    [[ "${DRY_RUN}" == "1" ]] && return
     [[ "${EUID}" -eq 0 ]] || die "$(msg root_required)"
 }
 
@@ -242,6 +268,10 @@ get_os_id() {
 }
 
 install_dependencies() {
+    if [[ "${DRY_RUN}" == "1" ]]; then
+        printf '%s\n' "DRY-RUN: skip dependency installation and systemd checks."
+        return
+    fi
     printf '%s\n' "$(msg checking)"
     get_os_id
 
@@ -346,6 +376,7 @@ ask_settings() {
 }
 
 check_client_port() {
+    [[ "${DRY_RUN}" == "1" ]] && return
     if systemctl is-active --quiet "${SERVICE_NAME}"; then
         return
     fi
@@ -355,6 +386,7 @@ check_client_port() {
 }
 
 ensure_user() {
+    [[ "${DRY_RUN}" == "1" ]] && return
     if ! id -u mtproxy >/dev/null 2>&1; then
         useradd --system --home-dir /var/lib/mtproxy --create-home --shell /usr/sbin/nologin --user-group mtproxy
     fi
@@ -362,6 +394,10 @@ ensure_user() {
 }
 
 build_mtproxy() {
+    if [[ "${DRY_RUN}" == "1" ]]; then
+        printf '%s\n' 'DRY-RUN: skip downloading and compiling the official MTProxy source.'
+        return
+    fi
     if [[ -x "${INSTALL_DIR}/objs/bin/mtproto-proxy" && "${MTPROXY_UPGRADE:-0}" != "1" ]]; then
         printf '%s\n' "MTProxy binary already exists; use MTPROXY_UPGRADE=1 to rebuild from the official source."
         return
@@ -382,6 +418,10 @@ build_mtproxy() {
 }
 
 download_config() {
+    if [[ "${DRY_RUN}" == "1" ]]; then
+        printf '%s\n' 'DRY-RUN: skip downloading proxy-secret and proxy-multi.conf.'
+        return
+    fi
     printf '%s\n' "$(msg configuring)"
     install -d -o root -g mtproxy -m 0750 "${CONFIG_DIR}"
     local secret_tmp config_tmp
@@ -407,6 +447,10 @@ download_config() {
 }
 
 write_runtime_config() {
+    if [[ "${DRY_RUN}" == "1" ]]; then
+        printf '%s\n' 'DRY-RUN: skip writing /etc/mtproxy and the systemd unit.'
+        return
+    fi
     local tag_args=""
     if [[ -n "${TAG}" ]]; then
         tag_args="-P ${TAG}"
@@ -457,6 +501,10 @@ EOF
 }
 
 write_update_service() {
+    if [[ "${DRY_RUN}" == "1" ]]; then
+        printf '%s\n' 'DRY-RUN: skip installing the daily configuration-update timer.'
+        return
+    fi
     install -d -o root -g root -m 0755 /usr/local/sbin
     cat > /usr/local/sbin/mtproxy-update-config <<EOF
 #!/usr/bin/env bash
@@ -513,6 +561,10 @@ EOF
 }
 
 start_services() {
+    if [[ "${DRY_RUN}" == "1" ]]; then
+        printf '%s\n' 'DRY-RUN: skip enabling and starting mtproxy.service.'
+        return
+    fi
     printf '%s\n' "$(msg service_starting)"
     systemctl daemon-reload
     systemctl enable --now "${SERVICE_NAME}.service"
@@ -531,6 +583,9 @@ show_result() {
     printf '%s\n' "$(msg config_file)"
     printf '%s\n' "$(msg firewall_note)"
     printf '%s\n' "$(msg upgrade_note)"
+    if [[ "${DRY_RUN}" == "1" ]]; then
+        printf '%s\n' "$(msg dry_run_done)"
+    fi
     printf '============================================================\n'
 }
 
