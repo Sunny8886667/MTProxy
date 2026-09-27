@@ -44,7 +44,7 @@ curl -fsSL https://raw.githubusercontent.com/Sunny8886667/MTProxy/main/install.s
 ## 安装过程中的选项
 
 1. 选择中文、English 或 فارسی；
-2. 显示项目介绍、作者和 Telegram 联系方式；
+2. 显示项目介绍、作者 Telegram 联系方式；
 3. 输入自己的 secret，或直接回车自动生成；
 4. 输入 `@MTProxybot` 返回的 tag，直接回车可以跳过；
 5. 输入公网 IP/域名、客户端端口、统计端口和 Worker 数量。
