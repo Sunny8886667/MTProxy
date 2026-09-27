@@ -41,6 +41,14 @@ curl -fsSL https://raw.githubusercontent.com/Sunny8886667/MTProxy/main/install.s
 
 برای سرور production بهتر است ابتدا اسکریپت را دانلود و بررسی کنید.
 
+برای تست کامل تعامل بدون تغییر سیستم:
+
+```bash
+bash install.sh --dry-run
+```
+
+حالت آزمایشی به root نیاز ندارد و وابستگی نصب نمی‌کند، کد را نمی‌سازد، فایل سیستمی نمی‌نویسد و سرویسی اجرا نمی‌کند.
+
 ## گزینه‌های نصب‌کننده
 
 ۱. انتخاب زبان چینی، انگلیسی یا فارسی؛
@@ -105,5 +113,4 @@ sudo bash uninstall.sh
 - [TelegramMessenger/MTProxy](https://github.com/TelegramMessenger/MTProxy)
 - [README رسمی MTProxy](https://github.com/TelegramMessenger/MTProxy/blob/master/README.md)
 - [مستندات رسمی MTProto transports](https://core.telegram.org/mtproto/mtproto-transports)
-
 
