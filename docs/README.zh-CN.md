@@ -41,10 +41,18 @@ curl -fsSL https://raw.githubusercontent.com/Sunny8886667/MTProxy/main/install.s
 
 生产服务器建议先下载并审查脚本，再执行。
 
+只测试交互、不修改系统：
+
+```bash
+bash install.sh --dry-run
+```
+
+模拟模式不会安装依赖、编译源码、写入系统目录或启动服务。
+
 ## 安装过程中的选项
 
 1. 选择中文、English 或 فارسی；
-2. 显示项目介绍、作者 Telegram 联系方式；
+2. 显示项目介绍、作者和 Telegram 联系方式；
 3. 输入自己的 secret，或直接回车自动生成；
 4. 输入 `@MTProxybot` 返回的 tag，直接回车可以跳过；
 5. 输入公网 IP/域名、客户端端口、统计端口和 Worker 数量。
@@ -105,5 +113,4 @@ sudo bash uninstall.sh
 - [TelegramMessenger/MTProxy 官方仓库](https://github.com/TelegramMessenger/MTProxy)
 - [官方 MTProxy README](https://github.com/TelegramMessenger/MTProxy/blob/master/README.md)
 - [官方 MTProto transports 文档](https://core.telegram.org/mtproto/mtproto-transports)
-
 
