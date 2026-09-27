@@ -41,6 +41,14 @@ curl -fsSL https://raw.githubusercontent.com/Sunny8886667/MTProxy/main/install.s
 
 For production servers, download and review the script before executing it.
 
+Test the complete interaction without changing the system:
+
+```bash
+bash install.sh --dry-run
+```
+
+Dry-run mode does not require root and does not install packages, compile code, write system files, or start services.
+
 ## Installer choices
 
 1. Choose 中文, English, or فارسی;
@@ -105,5 +113,4 @@ The uninstall script removes the services but keeps the binary and configuration
 - [TelegramMessenger/MTProxy](https://github.com/TelegramMessenger/MTProxy)
 - [Official MTProxy README](https://github.com/TelegramMessenger/MTProxy/blob/master/README.md)
 - [Official MTProto transports documentation](https://core.telegram.org/mtproto/mtproto-transports)
-
 
