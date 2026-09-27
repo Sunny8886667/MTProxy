@@ -1,7 +1,5 @@
 # Telegram MTProxy One-Click Installer
 
-基于 Telegram 官方 MTProxy 源码的多语言一键安装工具，支持自动检测环境、自动安装依赖、生成或填写 secret、配置 `@MTProxybot` tag、systemd 守护和官方配置每日更新。
-
 作者：Sunny8886667  ·  Telegram：[@Bill_999](https://t.me/Bill_999)
 
 Languages:
