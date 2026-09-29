@@ -33,7 +33,7 @@ cd MTProxy
 sudo bash install.sh
 ```
 
-克隆后运行会先选择语言，然后进入管理菜单，可以选择安装、卸载、启动、停止、重启、用户连接与统计、日志和升级。
+运行后会先选择语言，然后显示项目介绍。按 Enter 后直接开始安装。安装完成后输入 `menu` 进入管理菜单。
 
 ### 方式二：一行命令安装
 
@@ -47,7 +47,13 @@ curl -fsSL https://raw.githubusercontent.com/Sunny8886667/MTProxy/main/install.s
 
 ## 管理命令
 
-克隆仓库后，运行管理菜单：
+安装完成后，输入以下命令进入管理菜单：
+
+```bash
+menu
+```
+
+也可以使用：
 
 ```bash
 sudo bash install.sh menu
@@ -73,7 +79,8 @@ sudo bash install.sh uninstall --purge --yes
 也可以直接从 GitHub 打开管理菜单：
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/Sunny8886667/MTProxy/main/install.sh | tr -d '\r' | sudo bash -s -- menu
+curl -fsSL https://raw.githubusercontent.com/Sunny8886667/MTProxy/main/install.sh -o /tmp/mtproxy-install.sh
+sudo bash /tmp/mtproxy-install.sh menu
 ```
 
 ## 安装过程中的选项
