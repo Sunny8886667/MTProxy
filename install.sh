@@ -1211,7 +1211,6 @@ install_flow() {
 menu_action() {
     [[ -t 0 && -t 1 ]] || die 'The management menu requires an interactive terminal.'
     choose_language
-    show_homepage
 
     while true; do
         local -a menu_lines
