@@ -364,13 +364,14 @@ runtime_value() {
 }
 
 show_connection() {
-    local secret host port prefix
+    local secret host port prefix CLIENT_PORT
     [[ -r "${CONFIG_DIR}/mtproxy.env" ]] || die "$(msg connection_missing)"
     secret="$(runtime_value MTPROXY_SECRET)"
     host="$(runtime_value MTPROXY_PUBLIC_HOST)"
     port="$(runtime_value MTPROXY_PORT)"
     prefix="$(runtime_value MTPROXY_CLIENT_SECRET_PREFIX || true)"
     [[ -n "${secret}" && -n "${host}" && -n "${port}" ]] || die "$(msg connection_missing)"
+    CLIENT_PORT="${port}"
 
     printf '\n============================================================\n'
     printf '%s\n' "$(msg link)"
@@ -723,7 +724,7 @@ User=root
 Group=root
 WorkingDirectory=${INSTALL_DIR}
 EnvironmentFile=${CONFIG_DIR}/mtproxy.env
-ExecStart=${INSTALL_DIR}/objs/bin/mtproto-proxy -u nobody -p \${MTPROXY_STATS_PORT} -H \${MTPROXY_PORT} -S \${MTPROXY_SECRET} ${tag_args} --aes-pwd ${CONFIG_DIR}/proxy-secret ${CONFIG_DIR}/proxy-multi.conf -M \${MTPROXY_WORKERS}
+ExecStart=${INSTALL_DIR}/objs/bin/mtproto-proxy -u nobody -p \${MTPROXY_STATS_PORT} -H \${MTPROXY_PORT} -S \${MTPROXY_SECRET} ${tag_args} --http-stats --aes-pwd ${CONFIG_DIR}/proxy-secret ${CONFIG_DIR}/proxy-multi.conf -M \${MTPROXY_WORKERS}
 Restart=on-failure
 RestartSec=5
 LimitNOFILE=131072
@@ -918,3 +919,4 @@ main() {
 }
 
 main "$@"
+
