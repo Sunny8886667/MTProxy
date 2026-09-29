@@ -92,11 +92,7 @@ if [[ ! -t 0 || ! -t 1 ]]; then
 fi
 
 if [[ -z "${ACTION}" ]]; then
-    if [[ "${NONINTERACTIVE}" == "1" ]]; then
-        ACTION="install"
-    else
-        ACTION="menu"
-    fi
+    ACTION="install"
 fi
 
 cleanup() {
@@ -1177,6 +1173,32 @@ start_services() {
     wait_for_stats
 }
 
+install_control_command() {
+    [[ "${DRY_RUN}" == "1" ]] && return
+
+    local source_script="${BASH_SOURCE[1]:-${BASH_SOURCE[0]}}"
+    install -d -m 0755 /usr/local/lib/mtproxy
+    if [[ -f "${source_script}" ]]; then
+        install -m 0755 "${source_script}" /usr/local/lib/mtproxy/install.sh
+    fi
+
+    cat > /usr/local/bin/menu <<'EOF'
+#!/usr/bin/env bash
+set -Eeuo pipefail
+stored_script="/usr/local/lib/mtproxy/install.sh"
+if [[ -r "${stored_script}" ]]; then
+    exec /usr/bin/env bash "${stored_script}" menu "$@"
+fi
+
+tmp_script="$(mktemp /tmp/mtproxy-menu.XXXXXX)"
+trap 'rm -f -- "${tmp_script}"' EXIT
+curl --fail --silent --show-error --location --proto '=https' --proto-redir '=https' --tlsv1.2 \
+    --output "${tmp_script}" "https://raw.githubusercontent.com/Sunny8886667/MTProxy/main/install.sh"
+exec /usr/bin/env bash "${tmp_script}" menu "$@"
+EOF
+    chmod 0755 /usr/local/bin/menu
+}
+
 show_result() {
     local proxy_link="tg://proxy?server=${PUBLIC_HOST}&port=${CLIENT_PORT}&secret=${CLIENT_SECRET_PREFIX}${SECRET}"
     local https_proxy_link="https://t.me/proxy?server=${PUBLIC_HOST}&port=${CLIENT_PORT}&secret=${CLIENT_SECRET_PREFIX}${SECRET}"
@@ -1213,6 +1235,7 @@ install_flow() {
     download_config
     write_runtime_config
     write_update_service
+    install_control_command
     start_services
     show_result
 }
