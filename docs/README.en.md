@@ -67,7 +67,7 @@ sudo bash install.sh uninstall
 The default uninstall removes the systemd service and timer but keeps the program, configuration, and secret. To remove everything, explicitly run:
 
 ```bash
-sudo bash mtproxy-install.sh uninstall --purge --yes
+sudo bash install.sh uninstall --purge --yes
 ```
 
 You can also open the management menu directly from GitHub:
