@@ -139,7 +139,7 @@ sudo systemctl start mtproxy-config-update.service
 ## حذف نصب
 
 ```bash
-sudo bash uninstall.sh
+sudo bash mtproxy-install.sh uninstall
 ```
 
 این اسکریپت به‌صورت پیش‌فرض سرویس‌ها را حذف می‌کند، اما فایل باینری و تنظیمات را نگه می‌دارد تا secret به‌اشتباه حذف نشود. پس از بررسی، پوشه‌ها را دستی حذف کنید.
@@ -149,3 +149,4 @@ sudo bash uninstall.sh
 - [TelegramMessenger/MTProxy](https://github.com/TelegramMessenger/MTProxy)
 - [README رسمی MTProxy](https://github.com/TelegramMessenger/MTProxy/blob/master/README.md)
 - [مستندات رسمی MTProto transports](https://core.telegram.org/mtproto/mtproto-transports)
+
