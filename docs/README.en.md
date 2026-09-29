@@ -63,7 +63,9 @@ Dry-run mode does not require root and does not install packages, compile code, 
 Accepted secrets:
 
 - 32 hexadecimal characters for the standard secret;
-- 34 hexadecimal characters beginning with `dd` for padded intermediate transport.
+- You may also enter a 34-character secret beginning with `dd`; the installer removes `dd` for the server and keeps it in the client link.
+
+The tag returned by `@MTProxybot` must be a 32-character hexadecimal string.
 
 Defaults:
 
