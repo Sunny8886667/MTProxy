@@ -67,7 +67,7 @@ sudo bash install.sh uninstall
 默认卸载只删除 systemd 服务和定时器，会保留程序、配置和 secret。确认要全部删除时再执行：
 
 ```bash
-sudo bash mtproxy-install.sh uninstall --purge --yes
+sudo bash install.sh uninstall --purge --yes
 ```
 
 也可以直接从 GitHub 打开管理菜单：
