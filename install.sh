@@ -565,7 +565,7 @@ json_value() {
 
 geo_for_ip() {
     local ip="$1"
-    local response country region city location
+    local response country region city location geo_lang
 
     case "${ip}" in
         10.*|127.*|192.168.*|172.1[6-9].*|172.2[0-9].*|172.3[0-1].*|::1|fc*|fd*|fe80:*)
@@ -574,10 +574,18 @@ geo_for_ip() {
             ;;
     esac
 
-    response="$(curl --fail --silent --max-time 4 "https://ipapi.co/${ip}/json/" 2>/dev/null || true)"
-    country="$(printf '%s' "${response}" | json_value country_name)"
-    region="$(printf '%s' "${response}" | json_value region)"
+    geo_lang="en"
+    [[ "${LANGUAGE}" == "zh" ]] && geo_lang="zh-CN"
+    response="$(curl --fail --silent --max-time 4 "http://ip-api.com/json/${ip}?fields=status,country,regionName,city,query&lang=${geo_lang}" 2>/dev/null || true)"
+    country="$(printf '%s' "${response}" | json_value country)"
+    region="$(printf '%s' "${response}" | json_value regionName)"
     city="$(printf '%s' "${response}" | json_value city)"
+    if [[ -z "${country}" && -z "${region}" && -z "${city}" ]]; then
+        response="$(curl --fail --silent --max-time 4 "https://ipwho.is/${ip}" 2>/dev/null || true)"
+        country="$(printf '%s' "${response}" | json_value country)"
+        region="$(printf '%s' "${response}" | json_value region)"
+        city="$(printf '%s' "${response}" | json_value city)"
+    fi
     location=""
 
     if [[ -n "${country}" ]]; then
