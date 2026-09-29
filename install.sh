@@ -37,6 +37,18 @@ YES="0"
 PURGE="0"
 FOLLOW="0"
 
+if [[ -t 1 && -z "${NO_COLOR:-}" ]]; then
+    COLOR_GREEN=$'\033[32m'
+    COLOR_RED=$'\033[31m'
+    COLOR_YELLOW=$'\033[33m'
+    COLOR_RESET=$'\033[0m'
+else
+    COLOR_GREEN=""
+    COLOR_RED=""
+    COLOR_YELLOW=""
+    COLOR_RESET=""
+fi
+
 for argument in "$@"; do
     case "${argument}" in
         install) ACTION="install" ;;
@@ -149,7 +161,7 @@ msg() {
         zh:menu_install) printf '安装 / 重新配置 MTProxy' ;;
         zh:menu_uninstall) printf '卸载 MTProxy 服务（保留程序和配置）' ;;
         zh:menu_status) printf '查看服务状态' ;;
-        zh:menu_user_stats) printf '查看用户连接与统计' ;;
+        zh:menu_user_stats) printf '用户连接概览（连接数、IP、归属地）' ;;
         zh:menu_logs) printf '查看运行日志' ;;
         zh:menu_start) printf '启动服务' ;;
         zh:menu_stop) printf '停止服务' ;;
@@ -159,6 +171,27 @@ msg() {
         zh:menu_exit) printf '退出' ;;
         zh:menu_prompt) printf '请选择操作 [0-10]： ' ;;
         zh:user_stats_title) printf 'MTProxy 用户连接统计：' ;;
+        zh:status_title) printf '服务状态' ;;
+        zh:service_status) printf 'MTProxy 服务' ;;
+        zh:update_timer_status) printf '自动更新任务' ;;
+        zh:status_running) printf '运行中' ;;
+        zh:status_stopped) printf '已停止' ;;
+        zh:status_failed) printf '启动失败' ;;
+        zh:status_unknown) printf '未知' ;;
+        zh:status_not_found) printf '未安装' ;;
+        zh:status_port) printf '客户端端口' ;;
+        zh:menu_hint) printf '安装完成后输入 menu 打开控制面板，或运行：sudo bash install.sh menu' ;;
+        zh:connections_active) printf '当前连接数' ;;
+        zh:connections_encrypted) printf '加密连接数' ;;
+        zh:unique_ips) printf '当前 IP 数' ;;
+        zh:user_ip_title) printf '当前连接来源（IP / 归属地）' ;;
+        zh:ip_header) printf 'IP 地址' ;;
+        zh:location_header) printf '归属地' ;;
+        zh:no_active_clients) printf '当前没有检测到在线连接。' ;;
+        zh:location_unknown) printf '未知' ;;
+        zh:location_private) printf '内网/本机' ;;
+        zh:stats_note) printf '归属地来自公共 IP 数据库，仅供参考。' ;;
+        zh:more_ips) printf '连接较多，仅显示前 20 个 IP。' ;;
         zh:stats_unavailable) printf '统计接口不可用，请先启动 MTProxy 服务。' ;;
         zh:invalid_action) printf '操作无效，请重新选择。' ;;
         zh:uninstall_confirm) printf '确认卸载 MTProxy 服务吗？程序和配置默认保留 [y/N]： ' ;;
@@ -218,7 +251,7 @@ msg() {
         en:menu_install) printf 'Install / reconfigure MTProxy' ;;
         en:menu_uninstall) printf 'Uninstall MTProxy service (keep program and config)' ;;
         en:menu_status) printf 'Show service status' ;;
-        en:menu_user_stats) printf 'Show user connection and statistics' ;;
+        en:menu_user_stats) printf 'User connections (count, IP, location)' ;;
         en:menu_logs) printf 'View service logs' ;;
         en:menu_start) printf 'Start service' ;;
         en:menu_stop) printf 'Stop service' ;;
@@ -228,6 +261,27 @@ msg() {
         en:menu_exit) printf 'Exit' ;;
         en:menu_prompt) printf 'Choose an action [0-10]: ' ;;
         en:user_stats_title) printf 'MTProxy user connection statistics:' ;;
+        en:status_title) printf 'Service status' ;;
+        en:service_status) printf 'MTProxy service' ;;
+        en:update_timer_status) printf 'Auto-update task' ;;
+        en:status_running) printf 'Running' ;;
+        en:status_stopped) printf 'Stopped' ;;
+        en:status_failed) printf 'Failed' ;;
+        en:status_unknown) printf 'Unknown' ;;
+        en:status_not_found) printf 'Not installed' ;;
+        en:status_port) printf 'Client port' ;;
+        en:menu_hint) printf 'After installation, type menu to open the control panel, or run: sudo bash install.sh menu' ;;
+        en:connections_active) printf 'Active connections' ;;
+        en:connections_encrypted) printf 'Encrypted connections' ;;
+        en:unique_ips) printf 'Current IP count' ;;
+        en:user_ip_title) printf 'Current client sources (IP / location)' ;;
+        en:ip_header) printf 'IP address' ;;
+        en:location_header) printf 'Location' ;;
+        en:no_active_clients) printf 'No active client connections were detected.' ;;
+        en:location_unknown) printf 'Unknown' ;;
+        en:location_private) printf 'Private/local' ;;
+        en:stats_note) printf 'Locations come from a public IP database and are approximate.' ;;
+        en:more_ips) printf 'Many connections; showing only the first 20 IPs.' ;;
         en:stats_unavailable) printf 'The stats endpoint is unavailable. Start MTProxy first.' ;;
         en:invalid_action) printf 'Invalid action. Try again.' ;;
         en:uninstall_confirm) printf 'Uninstall the MTProxy service? The program and config are kept by default [y/N]: ' ;;
@@ -287,7 +341,7 @@ msg() {
         fa:menu_install) printf 'نصب یا پیکربندی دوبارهٔ MTProxy' ;;
         fa:menu_uninstall) printf 'حذف سرویس MTProxy (حفظ برنامه و تنظیمات)' ;;
         fa:menu_status) printf 'نمایش وضعیت سرویس' ;;
-        fa:menu_user_stats) printf 'نمایش اتصال و آمار کاربران' ;;
+        fa:menu_user_stats) printf 'اتصال کاربران (تعداد، IP و مکان)' ;;
         fa:menu_logs) printf 'مشاهدهٔ لاگ سرویس' ;;
         fa:menu_start) printf 'اجرای سرویس' ;;
         fa:menu_stop) printf 'توقف سرویس' ;;
@@ -297,6 +351,27 @@ msg() {
         fa:menu_exit) printf 'خروج' ;;
         fa:menu_prompt) printf 'یک عملیات را انتخاب کنید [۰ تا ۱۰]: ' ;;
         fa:user_stats_title) printf 'آمار اتصال کاربران MTProxy:' ;;
+        fa:status_title) printf 'وضعیت سرویس' ;;
+        fa:service_status) printf 'سرویس MTProxy' ;;
+        fa:update_timer_status) printf 'به‌روزرسانی خودکار' ;;
+        fa:status_running) printf 'در حال اجرا' ;;
+        fa:status_stopped) printf 'متوقف' ;;
+        fa:status_failed) printf 'ناموفق' ;;
+        fa:status_unknown) printf 'نامشخص' ;;
+        fa:status_not_found) printf 'نصب نشده' ;;
+        fa:status_port) printf 'پورت اتصال' ;;
+        fa:menu_hint) printf 'پس از نصب برای باز کردن پنل مدیریت menu را وارد کنید، یا اجرا کنید: sudo bash install.sh menu' ;;
+        fa:connections_active) printf 'اتصال‌های فعال' ;;
+        fa:connections_encrypted) printf 'اتصال‌های رمزنگاری‌شده' ;;
+        fa:unique_ips) printf 'تعداد IP فعلی' ;;
+        fa:user_ip_title) printf 'منابع اتصال (IP / مکان)' ;;
+        fa:ip_header) printf 'نشانی IP' ;;
+        fa:location_header) printf 'مکان' ;;
+        fa:no_active_clients) printf 'اتصال فعالی شناسایی نشد.' ;;
+        fa:location_unknown) printf 'نامشخص' ;;
+        fa:location_private) printf 'داخلی/محلی' ;;
+        fa:stats_note) printf 'مکان از پایگاه عمومی IP دریافت می‌شود و تقریبی است.' ;;
+        fa:more_ips) printf 'اتصال‌ها زیاد است؛ فقط ۲۰ IP اول نمایش داده می‌شود.' ;;
         fa:stats_unavailable) printf 'رابط آمار در دسترس نیست؛ ابتدا سرویس MTProxy را اجرا کنید.' ;;
         fa:invalid_action) printf 'عملیات نامعتبر است؛ دوباره انتخاب کنید.' ;;
         fa:uninstall_confirm) printf 'سرویس MTProxy حذف شود؟ برنامه و تنظیمات به‌صورت پیش‌فرض حفظ می‌شوند [y/N]: ' ;;
@@ -425,6 +500,41 @@ runtime_value() {
     awk -F= -v wanted_key="${key}" '$1 == wanted_key {print substr($0, index($0, "=") + 1); exit}' "${CONFIG_DIR}/mtproxy.env"
 }
 
+color_text() {
+    local color="$1"
+    shift
+    printf '%b%s%b' "${color}" "$*" "${COLOR_RESET}"
+}
+
+status_label() {
+    local state="${1:-unknown}"
+    local label
+    local color
+    case "${state}" in
+        active|running)
+            label="$(msg status_running)"
+            color="${COLOR_GREEN}"
+            ;;
+        inactive|dead|deactivating)
+            label="$(msg status_stopped)"
+            color="${COLOR_RED}"
+            ;;
+        failed)
+            label="$(msg status_failed)"
+            color="${COLOR_RED}"
+            ;;
+        not-found)
+            label="$(msg status_not_found)"
+            color="${COLOR_RED}"
+            ;;
+        *)
+            label="$(msg status_unknown)"
+            color="${COLOR_YELLOW}"
+            ;;
+    esac
+    color_text "${color}" "${label}"
+}
+
 show_connection() {
     local secret host port prefix CLIENT_PORT
     [[ -r "${CONFIG_DIR}/mtproxy.env" ]] || die "$(msg connection_missing)"
@@ -442,17 +552,110 @@ show_connection() {
     printf '============================================================\n'
 }
 
+stats_value() {
+    local key="$1"
+    local stats_file="$2"
+    awk -F '\t' -v wanted_key="${key}" '$1 == wanted_key {print $2; exit}' "${stats_file}"
+}
+
+json_value() {
+    local key="$1"
+    sed -n 's/.*"'"${key}"'"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p'
+}
+
+geo_for_ip() {
+    local ip="$1"
+    local response country region city location
+
+    case "${ip}" in
+        10.*|127.*|192.168.*|172.1[6-9].*|172.2[0-9].*|172.3[0-1].*|::1|fc*|fd*|fe80:*)
+            printf '%s' "$(msg location_private)"
+            return
+            ;;
+    esac
+
+    response="$(curl --fail --silent --max-time 4 "https://ipapi.co/${ip}/json/" 2>/dev/null || true)"
+    country="$(printf '%s' "${response}" | json_value country_name)"
+    region="$(printf '%s' "${response}" | json_value region)"
+    city="$(printf '%s' "${response}" | json_value city)"
+    location=""
+
+    if [[ -n "${country}" ]]; then
+        location="${country}"
+    fi
+    if [[ -n "${region}" ]]; then
+        [[ -n "${location}" ]] && location+=" / "
+        location+="${region}"
+    fi
+    if [[ -n "${city}" ]]; then
+        [[ -n "${location}" ]] && location+=" / "
+        location+="${city}"
+    fi
+    printf '%s' "${location:-$(msg location_unknown)}"
+}
+
+collect_client_ips() {
+    local client_port="$1"
+    mapfile -t CLIENT_IPS < <(
+        ss -tnH state established 2>/dev/null |
+            awk -v local_port=":${client_port}" '$4 ~ (local_port "$") {print $5}' |
+            while IFS= read -r peer; do
+                printf '%s\n' "${peer}" |
+                    sed -E 's/^\[([^]]+)\]:[0-9]+$/\1/; s/^([^:]+):[0-9]+$/\1/'
+            done |
+            awk 'NF' |
+            sort -u
+    )
+}
+
 show_user_stats() {
-    local stats_port
+    local stats_port client_port stats_file
+    local active_connections encrypted_connections
+    local -a summary_lines
     [[ -r "${CONFIG_DIR}/mtproxy.env" ]] || die "$(msg connection_missing)"
     stats_port="$(runtime_value MTPROXY_STATS_PORT || true)"
+    client_port="$(runtime_value MTPROXY_PORT || true)"
     [[ -n "${stats_port}" ]] || die "$(msg stats_unavailable)"
+    [[ -n "${client_port}" ]] || client_port="443"
 
-    printf '\n%s\n' "$(msg user_stats_title)"
-    if ! curl --fail --silent --show-error --max-time 5 "http://127.0.0.1:${stats_port}/stats"; then
-        printf '\n'
+    stats_file="$(mktemp)"
+    if ! curl --fail --silent --max-time 5 "http://127.0.0.1:${stats_port}/stats" > "${stats_file}"; then
+        rm -f -- "${stats_file}"
         die "$(msg stats_unavailable)"
     fi
+
+    active_connections="$(stats_value total_connections "${stats_file}" || true)"
+    encrypted_connections="$(stats_value total_encrypted_connections "${stats_file}" || true)"
+    collect_client_ips "${client_port}"
+
+    summary_lines=(
+        "$(msg user_stats_title)"
+        ""
+        "$(msg connections_active)：${active_connections:-0}"
+        "$(msg connections_encrypted)：${encrypted_connections:-0}"
+        "$(msg unique_ips)：${#CLIENT_IPS[@]}"
+    )
+    printf '\n'
+    show_box "${summary_lines[@]}"
+
+    printf '\n%s\n' "$(msg user_ip_title)"
+    if (( ${#CLIENT_IPS[@]} == 0 )); then
+        printf '%s\n' "$(msg no_active_clients)"
+    else
+        printf '  %-39s %s\n' "$(msg ip_header)" "$(msg location_header)"
+        local ip location shown=0
+        for ip in "${CLIENT_IPS[@]}"; do
+            (( shown >= 20 )) && break
+            location="$(geo_for_ip "${ip}")"
+            printf '  %-39s %s\n' "${ip}" "${location}"
+            shown=$((shown + 1))
+        done
+        if (( ${#CLIENT_IPS[@]} > 20 )); then
+            printf '%s\n' "$(msg more_ips)"
+        fi
+    fi
+    printf '%s\n' "$(msg stats_note)"
+    rm -f -- "${stats_file}"
     printf '\n'
 }
 
@@ -462,11 +665,26 @@ show_user_info() {
 }
 
 show_status() {
+    local service_state timer_state client_port
     require_systemctl
-    printf '\n--- mtproxy.service ---\n'
-    systemctl status "${SERVICE_NAME}.service" --no-pager -l || true
-    printf '\n--- mtproxy-config-update.timer ---\n'
-    systemctl status "${SERVICE_NAME}-config-update.timer" --no-pager -l || true
+    if systemctl cat "${SERVICE_NAME}.service" >/dev/null 2>&1; then
+        service_state="$(systemctl is-active "${SERVICE_NAME}.service" 2>/dev/null || true)"
+    else
+        service_state="not-found"
+    fi
+    if systemctl cat "${SERVICE_NAME}-config-update.timer" >/dev/null 2>&1; then
+        timer_state="$(systemctl is-active "${SERVICE_NAME}-config-update.timer" 2>/dev/null || true)"
+    else
+        timer_state="not-found"
+    fi
+
+    printf '\n%s\n' "$(msg status_title)"
+    printf '%s：%s\n' "$(msg service_status)" "$(status_label "${service_state}")"
+    printf '%s：%s\n' "$(msg update_timer_status)" "$(status_label "${timer_state}")"
+    if [[ -r "${CONFIG_DIR}/mtproxy.env" ]]; then
+        client_port="$(runtime_value MTPROXY_PORT || true)"
+        [[ -n "${client_port}" ]] && printf '%s：%s\n' "$(msg status_port)" "${client_port}"
+    fi
 }
 
 show_logs() {
@@ -482,12 +700,14 @@ start_service_action() {
     require_systemctl
     systemctl enable --now "${SERVICE_NAME}.service"
     printf '%s\n' "$(msg action_done)"
+    show_status
 }
 
 stop_service_action() {
     require_systemctl
     systemctl disable --now "${SERVICE_NAME}.service" || true
     printf '%s\n' "$(msg action_done)"
+    show_status
 }
 
 restart_service_action() {
@@ -495,6 +715,7 @@ restart_service_action() {
     systemctl daemon-reload
     systemctl restart "${SERVICE_NAME}.service"
     printf '%s\n' "$(msg action_done)"
+    show_status
 }
 
 update_config_action() {
@@ -950,6 +1171,7 @@ show_result() {
     printf '%s\n' "$(msg config_file)"
     printf '%s\n' "$(msg firewall_note)"
     printf '%s\n' "$(msg upgrade_note)"
+    printf '%s\n' "$(msg menu_hint)"
     if [[ "${DRY_RUN}" == "1" ]]; then
         printf '%s\n' "$(msg dry_run_done)"
     fi
