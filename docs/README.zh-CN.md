@@ -36,8 +36,11 @@ sudo bash install.sh
 ### 方式二：一行命令安装
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/Sunny8886667/MTProxy/main/install.sh | sudo bash
+curl -fsSL https://raw.githubusercontent.com/Sunny8886667/MTProxy/main/install.sh -o mtproxy-install.sh
+sudo bash mtproxy-install.sh
 ```
+
+如果使用 `curl | sudo bash` 管道方式，脚本会自动使用非交互安全默认值，不会显示输入选项。
 
 生产服务器建议先下载并审查脚本，再执行。
 
