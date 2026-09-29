@@ -32,7 +32,7 @@ CLIENT_PORT="${MTPROXY_PORT:-443}"
 STATS_PORT="${MTPROXY_STATS_PORT:-8888}"
 WORKERS="${MTPROXY_WORKERS:-1}"
 DRY_RUN="${MTPROXY_DRY_RUN:-0}"
-ACTION="${MTPROXY_ACTION:-install}"
+ACTION="${MTPROXY_ACTION:-}"
 YES="0"
 PURGE="0"
 FOLLOW="0"
@@ -58,6 +58,7 @@ for argument in "$@"; do
         --help|-h)
             printf 'Usage: sudo bash install.sh [action] [options]\n'
             printf 'Actions: install, uninstall, status, connection, logs, start, stop, restart, update-config, upgrade, menu\n'
+            printf 'With no action: interactive terminals open the management menu; piped input performs a safe-default install.\n'
             printf '  --dry-run  Test the interactive flow without changing the system.\n'
             printf '  --non-interactive  Install with safe defaults without prompts.\n'
             printf '  --yes  Confirm an uninstall without prompting.\n'
@@ -76,6 +77,14 @@ done
 # that mode instead of trying to read prompts from the script stream.
 if [[ ! -t 0 || ! -t 1 ]]; then
     NONINTERACTIVE="1"
+fi
+
+if [[ -z "${ACTION}" ]]; then
+    if [[ "${NONINTERACTIVE}" == "1" ]]; then
+        ACTION="install"
+    else
+        ACTION="menu"
+    fi
 fi
 
 cleanup() {
@@ -140,7 +149,7 @@ msg() {
         zh:menu_install) printf '安装 / 重新配置 MTProxy' ;;
         zh:menu_uninstall) printf '卸载 MTProxy 服务（保留程序和配置）' ;;
         zh:menu_status) printf '查看服务状态' ;;
-        zh:menu_connection) printf '显示用户连接链接' ;;
+        zh:menu_user_stats) printf '查看用户连接与统计' ;;
         zh:menu_logs) printf '查看运行日志' ;;
         zh:menu_start) printf '启动服务' ;;
         zh:menu_stop) printf '停止服务' ;;
@@ -149,6 +158,8 @@ msg() {
         zh:menu_upgrade) printf '升级官方源码并重新编译' ;;
         zh:menu_exit) printf '退出' ;;
         zh:menu_prompt) printf '请选择操作 [0-10]： ' ;;
+        zh:user_stats_title) printf 'MTProxy 用户连接统计：' ;;
+        zh:stats_unavailable) printf '统计接口不可用，请先启动 MTProxy 服务。' ;;
         zh:invalid_action) printf '操作无效，请重新选择。' ;;
         zh:uninstall_confirm) printf '确认卸载 MTProxy 服务吗？程序和配置默认保留 [y/N]： ' ;;
         zh:uninstall_purge_confirm) printf '确认同时删除程序和配置吗？此操作不可恢复 [y/N]： ' ;;
@@ -207,7 +218,7 @@ msg() {
         en:menu_install) printf 'Install / reconfigure MTProxy' ;;
         en:menu_uninstall) printf 'Uninstall MTProxy service (keep program and config)' ;;
         en:menu_status) printf 'Show service status' ;;
-        en:menu_connection) printf 'Show user connection link' ;;
+        en:menu_user_stats) printf 'Show user connection and statistics' ;;
         en:menu_logs) printf 'View service logs' ;;
         en:menu_start) printf 'Start service' ;;
         en:menu_stop) printf 'Stop service' ;;
@@ -216,6 +227,8 @@ msg() {
         en:menu_upgrade) printf 'Upgrade and rebuild official source' ;;
         en:menu_exit) printf 'Exit' ;;
         en:menu_prompt) printf 'Choose an action [0-10]: ' ;;
+        en:user_stats_title) printf 'MTProxy user connection statistics:' ;;
+        en:stats_unavailable) printf 'The stats endpoint is unavailable. Start MTProxy first.' ;;
         en:invalid_action) printf 'Invalid action. Try again.' ;;
         en:uninstall_confirm) printf 'Uninstall the MTProxy service? The program and config are kept by default [y/N]: ' ;;
         en:uninstall_purge_confirm) printf 'Also delete the program and config? This cannot be undone [y/N]: ' ;;
@@ -274,7 +287,7 @@ msg() {
         fa:menu_install) printf 'نصب یا پیکربندی دوبارهٔ MTProxy' ;;
         fa:menu_uninstall) printf 'حذف سرویس MTProxy (حفظ برنامه و تنظیمات)' ;;
         fa:menu_status) printf 'نمایش وضعیت سرویس' ;;
-        fa:menu_connection) printf 'نمایش پیوند اتصال کاربر' ;;
+        fa:menu_user_stats) printf 'نمایش اتصال و آمار کاربران' ;;
         fa:menu_logs) printf 'مشاهدهٔ لاگ سرویس' ;;
         fa:menu_start) printf 'اجرای سرویس' ;;
         fa:menu_stop) printf 'توقف سرویس' ;;
@@ -283,6 +296,8 @@ msg() {
         fa:menu_upgrade) printf 'ارتقا و ساخت دوبارهٔ کد رسمی' ;;
         fa:menu_exit) printf 'خروج' ;;
         fa:menu_prompt) printf 'یک عملیات را انتخاب کنید [۰ تا ۱۰]: ' ;;
+        fa:user_stats_title) printf 'آمار اتصال کاربران MTProxy:' ;;
+        fa:stats_unavailable) printf 'رابط آمار در دسترس نیست؛ ابتدا سرویس MTProxy را اجرا کنید.' ;;
         fa:invalid_action) printf 'عملیات نامعتبر است؛ دوباره انتخاب کنید.' ;;
         fa:uninstall_confirm) printf 'سرویس MTProxy حذف شود؟ برنامه و تنظیمات به‌صورت پیش‌فرض حفظ می‌شوند [y/N]: ' ;;
         fa:uninstall_purge_confirm) printf 'برنامه و تنظیمات هم حذف شوند؟ این کار قابل بازگشت نیست [y/N]: ' ;;
@@ -379,6 +394,25 @@ show_connection() {
     printf 'tg://proxy?server=%s&port=%s&secret=%s%s\n' "${host}" "${port}" "${prefix}" "${secret}"
     printf '%s\n' "$(msg firewall_note)"
     printf '============================================================\n'
+}
+
+show_user_stats() {
+    local stats_port
+    [[ -r "${CONFIG_DIR}/mtproxy.env" ]] || die "$(msg connection_missing)"
+    stats_port="$(runtime_value MTPROXY_STATS_PORT || true)"
+    [[ -n "${stats_port}" ]] || die "$(msg stats_unavailable)"
+
+    printf '\n%s\n' "$(msg user_stats_title)"
+    if ! curl --fail --silent --show-error --max-time 5 "http://127.0.0.1:${stats_port}/stats"; then
+        printf '\n'
+        die "$(msg stats_unavailable)"
+    fi
+    printf '\n'
+}
+
+show_user_info() {
+    show_connection
+    show_user_stats
 }
 
 show_status() {
@@ -877,8 +911,11 @@ show_result() {
 }
 
 install_flow() {
+    local show_intro="${1:-1}"
     choose_language
-    show_homepage
+    if [[ "${show_intro}" == "1" ]]; then
+        show_homepage
+    fi
     require_root
     install_dependencies
     ask_settings
@@ -896,6 +933,7 @@ install_flow() {
 menu_action() {
     [[ -t 0 && -t 1 ]] || die 'The management menu requires an interactive terminal.'
     choose_language
+    show_homepage
 
     while true; do
         printf '\n============================================================\n'
@@ -904,7 +942,7 @@ menu_action() {
         printf '1) %s\n' "$(msg menu_install)"
         printf '2) %s\n' "$(msg menu_uninstall)"
         printf '3) %s\n' "$(msg menu_status)"
-        printf '4) %s\n' "$(msg menu_connection)"
+        printf '4) %s\n' "$(msg menu_user_stats)"
         printf '5) %s\n' "$(msg menu_logs)"
         printf '6) %s\n' "$(msg menu_start)"
         printf '7) %s\n' "$(msg menu_stop)"
@@ -915,16 +953,16 @@ menu_action() {
         read -r -p "$(msg menu_prompt)" menu_choice
 
         case "${menu_choice}" in
-            1) install_flow ;;
+            1) install_flow 0 ;;
             2) YES="0"; PURGE="0"; uninstall_action ;;
             3) show_status ;;
-            4) show_connection ;;
+            4) show_user_info ;;
             5) FOLLOW="0"; show_logs ;;
             6) start_service_action ;;
             7) stop_service_action ;;
             8) restart_service_action ;;
             9) update_config_action ;;
-            10) MTPROXY_UPGRADE="1"; install_flow ;;
+            10) MTPROXY_UPGRADE="1"; install_flow 0 ;;
             0) return ;;
             *) printf '%s\n' "$(msg invalid_action)" ;;
         esac
