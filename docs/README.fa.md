@@ -57,6 +57,32 @@ bash install.sh --dry-run
 
 حالت آزمایشی به root نیاز ندارد و وابستگی نصب نمی‌کند، کد را نمی‌سازد، فایل سیستمی نمی‌نویسد و سرویسی اجرا نمی‌کند.
 
+## فرمان‌های مدیریت
+
+پس از دانلود اسکریپت، MTProxy را با فرمان‌های زیر مدیریت کنید:
+
+```bash
+sudo bash mtproxy-install.sh menu
+sudo bash mtproxy-install.sh status
+sudo bash mtproxy-install.sh connection
+sudo bash mtproxy-install.sh logs
+sudo bash mtproxy-install.sh restart
+sudo bash mtproxy-install.sh update-config
+sudo bash mtproxy-install.sh uninstall
+```
+
+حذف پیش‌فرض فقط سرویس و timer مربوط به systemd را حذف می‌کند و برنامه، تنظیمات و secret را نگه می‌دارد. برای حذف کامل، به‌صورت صریح اجرا کنید:
+
+```bash
+sudo bash mtproxy-install.sh uninstall --purge --yes
+```
+
+همچنین می‌توانید عملیات مدیریت را مستقیماً از GitHub اجرا کنید؛ برای نمونه نمایش پیوند اتصال کاربر:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/Sunny8886667/MTProxy/main/install.sh | tr -d '\r' | sudo bash -s -- connection
+```
+
 ## گزینه‌های نصب‌کننده
 
 ۱. انتخاب زبان چینی، انگلیسی یا فارسی؛
