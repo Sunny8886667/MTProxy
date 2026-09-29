@@ -36,7 +36,7 @@ sudo bash install.sh
 ### One-line installation
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/Sunny8886667/MTProxy/main/install.sh | sudo bash
+curl -fsSL https://raw.githubusercontent.com/Sunny8886667/MTProxy/main/install.sh | tr -d '\r' | sudo bash
 ```
 
 This uses safe defaults: Chinese, an automatically generated secret, no tag, automatic public IP detection, ports 443/8888, and one worker.
@@ -44,7 +44,7 @@ This uses safe defaults: Chinese, an automatically generated secret, no tag, aut
 To keep the prompts, download and run it interactively:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/Sunny8886667/MTProxy/main/install.sh -o mtproxy-install.sh && sudo bash mtproxy-install.sh
+curl -fsSL https://raw.githubusercontent.com/Sunny8886667/MTProxy/main/install.sh | tr -d '\r' > mtproxy-install.sh && sudo bash mtproxy-install.sh
 ```
 
 For production servers, download and review the script before executing it.
@@ -123,4 +123,3 @@ The uninstall script removes the services but keeps the binary and configuration
 - [TelegramMessenger/MTProxy](https://github.com/TelegramMessenger/MTProxy)
 - [Official MTProxy README](https://github.com/TelegramMessenger/MTProxy/blob/master/README.md)
 - [Official MTProto transports documentation](https://core.telegram.org/mtproto/mtproto-transports)
-
