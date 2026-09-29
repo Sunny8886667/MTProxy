@@ -36,11 +36,17 @@ sudo bash install.sh
 ### 方式二：一行命令安装
 
 ```bash
+curl -fsSL https://raw.githubusercontent.com/Sunny8886667/MTProxy/main/install.sh | sudo bash
+```
+
+这条命令会自动使用中文、自动生成 secret、不设置 tag、自动检测公网 IP、使用 443/8888 端口和 1 个 worker。
+
+如果需要显示交互选项，请使用下载后执行的方式：
+
+```bash
 curl -fsSL https://raw.githubusercontent.com/Sunny8886667/MTProxy/main/install.sh -o mtproxy-install.sh
 sudo bash mtproxy-install.sh
 ```
-
-如果使用 `curl | sudo bash` 管道方式，脚本会自动使用非交互安全默认值，不会显示输入选项。
 
 生产服务器建议先下载并审查脚本，再执行。
 
