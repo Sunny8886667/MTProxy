@@ -36,7 +36,7 @@ sudo bash install.sh
 ### 方式二：一行命令安装
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/Sunny8886667/MTProxy/main/install.sh | sudo bash
+curl -fsSL https://raw.githubusercontent.com/Sunny8886667/MTProxy/main/install.sh | tr -d '\r' | sudo bash
 ```
 
 这条命令会自动使用中文、自动生成 secret、不设置 tag、自动检测公网 IP、使用 443/8888 端口和 1 个 worker。
@@ -44,7 +44,7 @@ curl -fsSL https://raw.githubusercontent.com/Sunny8886667/MTProxy/main/install.s
 如果需要显示交互选项，请使用下载后执行的方式：
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/Sunny8886667/MTProxy/main/install.sh -o mtproxy-install.sh && sudo bash mtproxy-install.sh
+curl -fsSL https://raw.githubusercontent.com/Sunny8886667/MTProxy/main/install.sh | tr -d '\r' > mtproxy-install.sh && sudo bash mtproxy-install.sh
 ```
 
 生产服务器建议先下载并审查脚本，再执行。
@@ -123,4 +123,3 @@ sudo bash uninstall.sh
 - [TelegramMessenger/MTProxy 官方仓库](https://github.com/TelegramMessenger/MTProxy)
 - [官方 MTProxy README](https://github.com/TelegramMessenger/MTProxy/blob/master/README.md)
 - [官方 MTProto transports 文档](https://core.telegram.org/mtproto/mtproto-transports)
-
