@@ -33,42 +33,35 @@ cd MTProxy
 sudo bash install.sh
 ```
 
+در حالت تعاملی ابتدا زبان را انتخاب می‌کنید و سپس منوی مدیریت برای نصب، حذف، اجرا، توقف، راه‌اندازی دوباره، اتصال و آمار کاربران، لاگ و ارتقا نمایش داده می‌شود.
+
 ### نصب یک‌خطی
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/Sunny8886667/MTProxy/main/install.sh | tr -d '\r' | sudo bash
 ```
 
-این دستور از مقادیر پیش‌فرض امن استفاده می‌کند: زبان چینی، secret خودکار، بدون tag، تشخیص خودکار IP عمومی، پورت‌های ۴۴۳ و ۸۸۸۸ و یک worker.
-
-برای نمایش گزینه‌ها، ابتدا فایل را دانلود و سپس به‌صورت تعاملی اجرا کنید:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/Sunny8886667/MTProxy/main/install.sh | tr -d '\r' > mtproxy-install.sh && sudo bash mtproxy-install.sh
-```
+این دستور مستقیماً با مقادیر پیش‌فرض امن نصب می‌کند: زبان چینی، secret خودکار، بدون tag، تشخیص خودکار IP عمومی، پورت‌های ۴۴۳ و ۸۸۸۸ و یک worker.
 
 برای سرور production بهتر است ابتدا اسکریپت را دانلود و بررسی کنید.
 
-برای تست کامل تعامل بدون تغییر سیستم:
-
-```bash
-bash install.sh --dry-run
-```
-
-حالت آزمایشی به root نیاز ندارد و وابستگی نصب نمی‌کند، کد را نمی‌سازد، فایل سیستمی نمی‌نویسد و سرویسی اجرا نمی‌کند.
-
 ## فرمان‌های مدیریت
 
-پس از دانلود اسکریپت، MTProxy را با فرمان‌های زیر مدیریت کنید:
+پس از clone کردن مخزن، منوی مدیریت را اجرا کنید:
 
 ```bash
-sudo bash mtproxy-install.sh menu
-sudo bash mtproxy-install.sh status
-sudo bash mtproxy-install.sh connection
-sudo bash mtproxy-install.sh logs
-sudo bash mtproxy-install.sh restart
-sudo bash mtproxy-install.sh update-config
-sudo bash mtproxy-install.sh uninstall
+sudo bash install.sh menu
+```
+
+همچنین می‌توانید یک عملیات را مستقیم اجرا کنید:
+
+```bash
+sudo bash install.sh status
+sudo bash install.sh connection
+sudo bash install.sh logs
+sudo bash install.sh restart
+sudo bash install.sh update-config
+sudo bash install.sh uninstall
 ```
 
 حذف پیش‌فرض فقط سرویس و timer مربوط به systemd را حذف می‌کند و برنامه، تنظیمات و secret را نگه می‌دارد. برای حذف کامل، به‌صورت صریح اجرا کنید:
@@ -77,10 +70,10 @@ sudo bash mtproxy-install.sh uninstall
 sudo bash mtproxy-install.sh uninstall --purge --yes
 ```
 
-همچنین می‌توانید عملیات مدیریت را مستقیماً از GitHub اجرا کنید؛ برای نمونه نمایش پیوند اتصال کاربر:
+همچنین می‌توانید منوی مدیریت را مستقیماً از GitHub باز کنید:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/Sunny8886667/MTProxy/main/install.sh | tr -d '\r' | sudo bash -s -- connection
+curl -fsSL https://raw.githubusercontent.com/Sunny8886667/MTProxy/main/install.sh | tr -d '\r' | sudo bash -s -- menu
 ```
 
 ## گزینه‌های نصب‌کننده
