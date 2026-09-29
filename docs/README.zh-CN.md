@@ -33,42 +33,35 @@ cd MTProxy
 sudo bash install.sh
 ```
 
+克隆后运行会先选择语言，然后进入管理菜单，可以选择安装、卸载、启动、停止、重启、用户连接与统计、日志和升级。
+
 ### 方式二：一行命令安装
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/Sunny8886667/MTProxy/main/install.sh | tr -d '\r' | sudo bash
 ```
 
-这条命令会自动使用中文、自动生成 secret、不设置 tag、自动检测公网 IP、使用 443/8888 端口和 1 个 worker。
-
-如果需要显示交互选项，请使用下载后执行的方式：
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/Sunny8886667/MTProxy/main/install.sh | tr -d '\r' > mtproxy-install.sh && sudo bash mtproxy-install.sh
-```
+这条命令会直接使用安全默认值安装：中文、自动生成 secret、不设置 tag、自动检测公网 IP、使用 443/8888 端口和 1 个 worker。
 
 生产服务器建议先下载并审查脚本，再执行。
 
-只测试交互、不修改系统：
-
-```bash
-bash install.sh --dry-run
-```
-
-模拟模式不会安装依赖、编译源码、写入系统目录或启动服务。
-
 ## 管理命令
 
-下载脚本后，可以使用以下命令管理 MTProxy：
+克隆仓库后，运行管理菜单：
 
 ```bash
-sudo bash mtproxy-install.sh menu
-sudo bash mtproxy-install.sh status
-sudo bash mtproxy-install.sh connection
-sudo bash mtproxy-install.sh logs
-sudo bash mtproxy-install.sh restart
-sudo bash mtproxy-install.sh update-config
-sudo bash mtproxy-install.sh uninstall
+sudo bash install.sh menu
+```
+
+也可以直接执行单个操作：
+
+```bash
+sudo bash install.sh status
+sudo bash install.sh connection
+sudo bash install.sh logs
+sudo bash install.sh restart
+sudo bash install.sh update-config
+sudo bash install.sh uninstall
 ```
 
 默认卸载只删除 systemd 服务和定时器，会保留程序、配置和 secret。确认要全部删除时再执行：
@@ -77,10 +70,10 @@ sudo bash mtproxy-install.sh uninstall
 sudo bash mtproxy-install.sh uninstall --purge --yes
 ```
 
-也可以直接从 GitHub 执行管理命令，例如显示用户连接链接：
+也可以直接从 GitHub 打开管理菜单：
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/Sunny8886667/MTProxy/main/install.sh | tr -d '\r' | sudo bash -s -- connection
+curl -fsSL https://raw.githubusercontent.com/Sunny8886667/MTProxy/main/install.sh | tr -d '\r' | sudo bash -s -- menu
 ```
 
 ## 安装过程中的选项
