@@ -415,7 +415,8 @@ build_mtproxy() {
         # still contain common symbols, so retry with the compatibility flag.
         printf '%s\n' 'Initial MTProxy build failed; retrying with -fcommon for newer GCC toolchains...'
         runuser -u mtproxy -- make -C "${source_dir}" clean || true
-        runuser -u mtproxy -- make -C "${source_dir}" -j"$(nproc)" 'CFLAGS+=-fcommon' || die 'MTProxy build failed. Review the compiler output above.'
+        runuser -u mtproxy -- sed -i 's/^CFLAGS = /CFLAGS = -fcommon /' "${source_dir}/Makefile"
+        runuser -u mtproxy -- make -C "${source_dir}" -j"$(nproc)" || die 'MTProxy build failed. Review the compiler output above.'
     fi
     [[ -x "${source_dir}/objs/bin/mtproto-proxy" ]] || die "MTProxy build did not produce the expected binary."
 
