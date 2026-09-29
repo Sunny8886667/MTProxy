@@ -455,6 +455,12 @@ show_box() {
     done
     box_border
 }
+show_lines() {
+    local line
+    for line in "$@"; do
+        printf '%s\n' "${line}"
+    done
+}
 
 show_homepage() {
     local -a homepage_lines
@@ -646,7 +652,7 @@ show_user_stats() {
         "$(msg unique_ips)：${#CLIENT_IPS[@]}"
     )
     printf '\n'
-    show_box "${summary_lines[@]}"
+    show_lines "${summary_lines[@]}"
 
     printf '\n%s\n' "$(msg user_ip_title)"
     if (( ${#CLIENT_IPS[@]} == 0 )); then
@@ -1229,7 +1235,7 @@ menu_action() {
             "10) $(msg menu_upgrade)"
             "0) $(msg menu_exit)"
         )
-        show_box "${menu_lines[@]}"
+        show_lines "${menu_lines[@]}"
         read -r -p "$(msg menu_prompt)" menu_choice
 
         case "${menu_choice}" in
