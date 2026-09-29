@@ -23,7 +23,7 @@ sudo bash install.sh
 One-command automatic installation:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/Sunny8886667/MTProxy/main/install.sh | sudo bash
+curl -fsSL https://raw.githubusercontent.com/Sunny8886667/MTProxy/main/install.sh | tr -d '\r' | sudo bash
 ```
 
 This uses safe defaults: Chinese, an automatically generated secret, no tag, automatic public IP detection, ports 443/8888, and one worker.
@@ -31,7 +31,7 @@ This uses safe defaults: Chinese, an automatically generated secret, no tag, aut
 To keep the prompts, download and run it interactively:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/Sunny8886667/MTProxy/main/install.sh -o mtproxy-install.sh && sudo bash mtproxy-install.sh
+curl -fsSL https://raw.githubusercontent.com/Sunny8886667/MTProxy/main/install.sh | tr -d '\r' > mtproxy-install.sh && sudo bash mtproxy-install.sh
 ```
 
 For security, review the script before executing it on a production server.
@@ -64,4 +64,3 @@ Official references:
 ## Disclaimer
 
 This repository is an independent installer and is not published by Telegram. Users are responsible for complying with the laws, policies, and network rules applicable to their server and location.
-
