@@ -1218,9 +1218,6 @@ install_flow() {
 menu_action() {
     [[ -t 0 && -t 1 ]] || die 'The management menu requires an interactive terminal.'
     choose_language
-    if [[ ! -r "${CONFIG_DIR}/mtproxy.env" ]]; then
-        show_homepage
-    fi
 
     while true; do
         local -a menu_lines
@@ -1243,7 +1240,7 @@ menu_action() {
         read -r -p "$(msg menu_prompt)" menu_choice
 
         case "${menu_choice}" in
-            1) install_flow 0; return ;;
+            1) install_flow 1; return ;;
             2) YES="0"; PURGE="0"; uninstall_action ;;
             3) show_status ;;
             4) show_user_info ;;
