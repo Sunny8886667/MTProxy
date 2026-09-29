@@ -23,6 +23,7 @@ NONINTERACTIVE="${MTPROXY_NONINTERACTIVE:-0}"
 
 TMP_ROOT=""
 SECRET="${MTPROXY_SECRET:-}"
+CLIENT_SECRET_PREFIX=""
 TAG="${MTPROXY_TAG:-}"
 PUBLIC_HOST="${MTPROXY_PUBLIC_HOST:-}"
 CLIENT_PORT="${MTPROXY_PORT:-443}"
@@ -86,9 +87,9 @@ msg() {
         zh:systemd_required) printf '当前系统没有可用的 systemd/systemctl，无法安装常驻服务。' ;;
         zh:secret_prompt) printf '请输入 MTProxy secret（直接回车自动生成，输入隐藏）： ' ;;
         zh:secret_generated) printf '未填写 secret，已自动生成。' ;;
-        zh:secret_invalid) printf 'secret 必须是 32 位十六进制，或以 dd 开头的 34 位十六进制字符串。' ;;
+        zh:secret_invalid) printf 'secret 必须是 32 位十六进制；如果输入 dd+32 位，dd 只用于客户端随机填充。' ;;
         zh:tag_prompt) printf '请输入 @MTProxybot 返回的 tag（没有则直接回车跳过）： ' ;;
-        zh:tag_invalid) printf 'tag 只能包含字母、数字、下划线或短横线。' ;;
+        zh:tag_invalid) printf 'tag 必须是 @MTProxybot 返回的 32 位十六进制字符串。' ;;
         zh:host_prompt) printf '请输入服务器公网 IP 或域名（直接回车自动检测）： ' ;;
         zh:host_detected) printf '检测到公网地址：%s' "${PUBLIC_HOST}" ;;
         zh:host_invalid) printf '公网地址包含不支持的字符，请重新输入。' ;;
@@ -98,6 +99,7 @@ msg() {
         zh:port_invalid) printf '端口必须是 1 到 65535 之间的数字。' ;;
         zh:workers_invalid) printf 'Worker 数量必须是正整数。' ;;
         zh:port_busy) printf '端口 %s 已被占用，请更换端口或停止占用它的服务。' "${CLIENT_PORT}" ;;
+        zh:stats_port_busy) printf '统计端口 %s 已被占用，请更换统计端口或停止占用它的服务。' "${STATS_PORT}" ;;
         zh:building) printf '正在下载并编译 Telegram 官方 MTProxy 源码...' ;;
         zh:configuring) printf '正在下载并校验 Telegram 官方配置...' ;;
         zh:service_starting) printf '正在创建并启动 systemd 服务...' ;;
@@ -131,9 +133,9 @@ msg() {
         en:systemd_required) printf 'systemd/systemctl is not available, so a persistent service cannot be installed.' ;;
         en:secret_prompt) printf 'Enter the MTProxy secret (press Enter to generate one; input hidden): ' ;;
         en:secret_generated) printf 'No secret entered; a new secret was generated.' ;;
-        en:secret_invalid) printf 'The secret must be 32 hexadecimal characters, or 34 hexadecimal characters starting with dd.' ;;
+        en:secret_invalid) printf 'The secret must be 32 hexadecimal characters; an optional dd+32 form is used only for the client link.' ;;
         en:tag_prompt) printf 'Enter the tag returned by @MTProxybot (press Enter to skip): ' ;;
-        en:tag_invalid) printf 'The tag may contain only letters, digits, underscores, or hyphens.' ;;
+        en:tag_invalid) printf 'The tag must be the 32-hex-character value returned by @MTProxybot.' ;;
         en:host_prompt) printf 'Enter the public IP or domain (press Enter to detect it): ' ;;
         en:host_detected) printf 'Detected public address: %s' "${PUBLIC_HOST}" ;;
         en:host_invalid) printf 'The public address contains unsupported characters. Try again.' ;;
@@ -143,6 +145,7 @@ msg() {
         en:port_invalid) printf 'The port must be a number from 1 to 65535.' ;;
         en:workers_invalid) printf 'Worker count must be a positive integer.' ;;
         en:port_busy) printf 'Port %s is already in use. Choose another port or stop the conflicting service.' "${CLIENT_PORT}" ;;
+        en:stats_port_busy) printf 'The stats port %s is already in use. Choose another stats port or stop the conflicting service.' "${STATS_PORT}" ;;
         en:building) printf 'Downloading and building the official Telegram MTProxy source...' ;;
         en:configuring) printf 'Downloading and validating the official Telegram configuration...' ;;
         en:service_starting) printf 'Creating and starting the systemd service...' ;;
@@ -176,9 +179,9 @@ msg() {
         fa:systemd_required) printf 'systemd/systemctl در دسترس نیست و سرویس دائمی نصب نمی‌شود.' ;;
         fa:secret_prompt) printf 'secret مربوط به MTProxy را وارد کنید (Enter برای تولید خودکار؛ ورودی مخفی است): ' ;;
         fa:secret_generated) printf 'secret وارد نشد؛ secret جدید تولید شد.' ;;
-        fa:secret_invalid) printf 'secret باید ۳۲ کاراکتر هگزادسیمال یا ۳۴ کاراکتر هگزادسیمال با پیشوند dd باشد.' ;;
+        fa:secret_invalid) printf 'secret باید ۳۲ کاراکتر هگزادسیمال باشد؛ قالب dd به‌علاوهٔ ۳۲ کاراکتر فقط برای پیوند سمت کاربر است.' ;;
         fa:tag_prompt) printf 'tag دریافتی از @MTProxybot را وارد کنید (برای رد کردن Enter بزنید): ' ;;
-        fa:tag_invalid) printf 'tag فقط می‌تواند شامل حروف، اعداد، زیرخط یا خط تیره باشد.' ;;
+        fa:tag_invalid) printf 'tag باید مقدار ۳۲ کاراکتری هگزادسیمال دریافتی از @MTProxybot باشد.' ;;
         fa:host_prompt) printf 'IP عمومی یا دامنهٔ سرور را وارد کنید (Enter برای تشخیص خودکار): ' ;;
         fa:host_detected) printf 'نشانی عمومی شناسایی شد: %s' "${PUBLIC_HOST}" ;;
         fa:host_invalid) printf 'نشانی عمومی شامل کاراکتر پشتیبانی‌نشده است.' ;;
@@ -188,6 +191,7 @@ msg() {
         fa:port_invalid) printf 'پورت باید عددی بین ۱ تا ۶۵۵۳۵ باشد.' ;;
         fa:workers_invalid) printf 'تعداد worker باید یک عدد مثبت باشد.' ;;
         fa:port_busy) printf 'پورت %s در حال استفاده است؛ پورت دیگری انتخاب کنید.' "${CLIENT_PORT}" ;;
+        fa:stats_port_busy) printf 'پورت آمار %s در حال استفاده است؛ پورت دیگری برای آمار انتخاب کنید.' "${STATS_PORT}" ;;
         fa:building) printf 'در حال دریافت و ساخت کد رسمی Telegram MTProxy...' ;;
         fa:configuring) printf 'در حال دریافت و بررسی پیکربندی رسمی Telegram...' ;;
         fa:service_starting) printf 'در حال ساخت و اجرای سرویس systemd...' ;;
@@ -334,13 +338,18 @@ ask_settings() {
         fi
     fi
     SECRET="${SECRET,,}"
-    [[ "${SECRET}" =~ ^[0-9a-f]{32}$ || "${SECRET}" =~ ^dd[0-9a-f]{32}$ ]] || die "$(msg secret_invalid)"
+    if [[ "${SECRET}" =~ ^dd[0-9a-f]{32}$ ]]; then
+        CLIENT_SECRET_PREFIX="dd"
+        SECRET="${SECRET:2}"
+    fi
+    [[ "${SECRET}" =~ ^[0-9a-f]{32}$ ]] || die "$(msg secret_invalid)"
 
     if [[ -z "${TAG}" && "${NONINTERACTIVE}" != "1" ]]; then
         read -r -p "$(msg tag_prompt)" TAG
     fi
     if [[ -n "${TAG}" ]]; then
-        [[ "${TAG}" =~ ^[A-Za-z0-9_-]{1,128}$ ]] || die "$(msg tag_invalid)"
+        TAG="${TAG,,}"
+        [[ "${TAG}" =~ ^[0-9a-f]{32}$ ]] || die "$(msg tag_invalid)"
     fi
 
     if [[ -z "${PUBLIC_HOST}" ]]; then
@@ -382,6 +391,9 @@ check_client_port() {
     fi
     if ss -ltnH 2>/dev/null | awk '{print $4}' | grep -Eq "(^|:)${CLIENT_PORT}$"; then
         die "$(msg port_busy)"
+    fi
+    if [[ "${STATS_PORT}" != "${CLIENT_PORT}" ]] && ss -ltnH 2>/dev/null | awk '{print $4}' | grep -Eq "(^|:)${STATS_PORT}$"; then
+        die "$(msg stats_port_busy)"
     fi
 }
 
@@ -451,7 +463,9 @@ download_config() {
     grep -q '^proxy_for ' "${config_tmp}" || die "proxy-multi.conf validation failed."
 
     chown root:mtproxy "${secret_tmp}" "${config_tmp}"
-    chmod 0640 "${secret_tmp}" "${config_tmp}"
+    # MTProxy reads the official files again after dropping to its runtime
+    # user, so they must remain world-readable like the upstream instructions.
+    chmod 0644 "${secret_tmp}" "${config_tmp}"
     mv -f "${secret_tmp}" "${CONFIG_DIR}/proxy-secret"
     mv -f "${config_tmp}" "${CONFIG_DIR}/proxy-multi.conf"
     trap - RETURN
@@ -532,9 +546,9 @@ test "\$(wc -c < "\${config}")" -ge 100
 grep -q '^default ' "\${config}"
 grep -q '^proxy_for ' "\${config}"
 chown root:mtproxy "\${secret}" "\${config}"
-chmod 0640 "\${secret}" "\${config}"
-install -o root -g mtproxy -m 0640 "\${secret}" "\${CONFIG_DIR}/proxy-secret.new"
-install -o root -g mtproxy -m 0640 "\${config}" "\${CONFIG_DIR}/proxy-multi.conf.new"
+chmod 0644 "\${secret}" "\${config}"
+install -o root -g mtproxy -m 0644 "\${secret}" "\${CONFIG_DIR}/proxy-secret.new"
+install -o root -g mtproxy -m 0644 "\${config}" "\${CONFIG_DIR}/proxy-multi.conf.new"
 if ! cmp -s "\${CONFIG_DIR}/proxy-secret.new" "\${CONFIG_DIR}/proxy-secret" || ! cmp -s "\${CONFIG_DIR}/proxy-multi.conf.new" "\${CONFIG_DIR}/proxy-multi.conf"; then
     mv -f "\${CONFIG_DIR}/proxy-secret.new" "\${CONFIG_DIR}/proxy-secret"
     mv -f "\${CONFIG_DIR}/proxy-multi.conf.new" "\${CONFIG_DIR}/proxy-multi.conf"
@@ -580,11 +594,15 @@ start_services() {
     systemctl daemon-reload
     systemctl enable --now "${SERVICE_NAME}.service"
     systemctl enable --now "${SERVICE_NAME}-config-update.timer"
-    systemctl is-active --quiet "${SERVICE_NAME}.service" || die "$(msg service_failed)"
+    if ! systemctl is-active --quiet "${SERVICE_NAME}.service"; then
+        systemctl status "${SERVICE_NAME}.service" --no-pager -l || true
+        journalctl -u "${SERVICE_NAME}.service" -n 80 --no-pager || true
+        die "$(msg service_failed)"
+    fi
 }
 
 show_result() {
-    local proxy_link="tg://proxy?server=${PUBLIC_HOST}&port=${CLIENT_PORT}&secret=${SECRET}"
+    local proxy_link="tg://proxy?server=${PUBLIC_HOST}&port=${CLIENT_PORT}&secret=${CLIENT_SECRET_PREFIX}${SECRET}"
     printf '\n============================================================\n'
     printf '%s\n' "$(msg done)"
     printf '%s\n' "$(msg link)"
