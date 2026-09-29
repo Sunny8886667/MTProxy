@@ -44,6 +44,28 @@ bash install.sh --dry-run
 
 Dry-run mode does not require root and does not install packages, compile code, write system files, or start services.
 
+## Management commands
+
+After downloading the script, you can manage MTProxy with:
+
+```bash
+sudo bash mtproxy-install.sh menu
+sudo bash mtproxy-install.sh status
+sudo bash mtproxy-install.sh connection
+sudo bash mtproxy-install.sh logs
+sudo bash mtproxy-install.sh restart
+sudo bash mtproxy-install.sh update-config
+sudo bash mtproxy-install.sh uninstall
+```
+
+The default uninstall removes the systemd service and timer but keeps the program, configuration, and secret. To remove those as well, use `sudo bash mtproxy-install.sh uninstall --purge --yes` after reviewing the command.
+
+The same actions can be run directly from GitHub. For example:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/Sunny8886667/MTProxy/main/install.sh | tr -d '\r' | sudo bash -s -- connection
+```
+
 ## What it installs
 
 - Official source from [TelegramMessenger/MTProxy](https://github.com/TelegramMessenger/MTProxy).
