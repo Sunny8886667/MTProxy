@@ -36,11 +36,17 @@ sudo bash install.sh
 ### One-line installation
 
 ```bash
+curl -fsSL https://raw.githubusercontent.com/Sunny8886667/MTProxy/main/install.sh | sudo bash
+```
+
+This uses safe defaults: Chinese, an automatically generated secret, no tag, automatic public IP detection, ports 443/8888, and one worker.
+
+To keep the prompts, download and run it interactively:
+
+```bash
 curl -fsSL https://raw.githubusercontent.com/Sunny8886667/MTProxy/main/install.sh -o mtproxy-install.sh
 sudo bash mtproxy-install.sh
 ```
-
-Direct `curl | sudo bash` piping is supported, but it intentionally uses non-interactive safe defaults and does not show prompts.
 
 For production servers, download and review the script before executing it.
 
