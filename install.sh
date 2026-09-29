@@ -344,22 +344,62 @@ choose_language() {
     done
 }
 
+box_prepare() {
+    local text
+    BOX_INNER_WIDTH=60
+    for text in "$@"; do
+        if (( ${#text} > BOX_INNER_WIDTH )); then
+            BOX_INNER_WIDTH=${#text}
+        fi
+    done
+}
+
+box_border() {
+    printf '%*s\n' "$((BOX_INNER_WIDTH + 2))" '' | tr ' ' '*'
+}
+
+box_line() {
+    local text="$1"
+    local text_length=${#text}
+    local padding=$((BOX_INNER_WIDTH - text_length))
+    local left_padding=$((padding / 2))
+    local right_padding=$((padding - left_padding))
+    printf '*%*s%s%*s*\n' "${left_padding}" '' "${text}" "${right_padding}" ''
+}
+
+show_box() {
+    local line
+    box_prepare "$@"
+    box_border
+    for line in "$@"; do
+        box_line "${line}"
+    done
+    box_border
+}
+
 show_homepage() {
-    printf '\n============================================================\n'
-    printf '%s\n' "$(msg home_title)"
-    printf '============================================================\n'
-    printf '%s\n' "$(msg home_intro)"
-    printf '%s\n' "$(msg home_features)"
-    printf '%s\n' "$(msg author)"
-    printf '%s\n' "$(msg contact)"
-    printf '%s\n' "$(msg repo)"
-    printf '%s\n' "$(msg upstream)"
-    printf '%s\n' "$(msg official_docs)"
-    printf '%s\n' "$(msg not_official)"
+    local -a homepage_lines
+    homepage_lines=(
+        "$(msg home_title)"
+        ""
+        "$(msg home_intro)"
+        "$(msg home_features)"
+        ""
+        "$(msg author)"
+        "$(msg contact)"
+        "$(msg repo)"
+        "$(msg upstream)"
+        "$(msg official_docs)"
+        ""
+        "$(msg not_official)"
+    )
     if [[ "${DRY_RUN}" == "1" ]]; then
-        printf '%s\n' "$(msg dry_run)"
+        homepage_lines+=("" "$(msg dry_run)")
     fi
-    printf '============================================================\n\n'
+
+    printf '\n'
+    show_box "${homepage_lines[@]}"
+    printf '\n'
 
     if [[ "${NONINTERACTIVE}" != "1" ]]; then
         read -r -p "$(msg continue)" _
@@ -938,20 +978,23 @@ menu_action() {
     show_homepage
 
     while true; do
-        printf '\n============================================================\n'
-        printf '%s\n' "$(msg menu_title)"
-        printf '============================================================\n'
-        printf '1) %s\n' "$(msg menu_install)"
-        printf '2) %s\n' "$(msg menu_uninstall)"
-        printf '3) %s\n' "$(msg menu_status)"
-        printf '4) %s\n' "$(msg menu_user_stats)"
-        printf '5) %s\n' "$(msg menu_logs)"
-        printf '6) %s\n' "$(msg menu_start)"
-        printf '7) %s\n' "$(msg menu_stop)"
-        printf '8) %s\n' "$(msg menu_restart)"
-        printf '9) %s\n' "$(msg menu_update)"
-        printf '10) %s\n' "$(msg menu_upgrade)"
-        printf '0) %s\n' "$(msg menu_exit)"
+        local -a menu_lines
+        menu_lines=(
+            "$(msg menu_title)"
+            ""
+            "1) $(msg menu_install)"
+            "2) $(msg menu_uninstall)"
+            "3) $(msg menu_status)"
+            "4) $(msg menu_user_stats)"
+            "5) $(msg menu_logs)"
+            "6) $(msg menu_start)"
+            "7) $(msg menu_stop)"
+            "8) $(msg menu_restart)"
+            "9) $(msg menu_update)"
+            "10) $(msg menu_upgrade)"
+            "0) $(msg menu_exit)"
+        )
+        show_box "${menu_lines[@]}"
         read -r -p "$(msg menu_prompt)" menu_choice
 
         case "${menu_choice}" in
