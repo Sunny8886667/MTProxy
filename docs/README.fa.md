@@ -36,7 +36,7 @@ sudo bash install.sh
 ### نصب یک‌خطی
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/Sunny8886667/MTProxy/main/install.sh | sudo bash
+curl -fsSL https://raw.githubusercontent.com/Sunny8886667/MTProxy/main/install.sh | tr -d '\r' | sudo bash
 ```
 
 این دستور از مقادیر پیش‌فرض امن استفاده می‌کند: زبان چینی، secret خودکار، بدون tag، تشخیص خودکار IP عمومی، پورت‌های ۴۴۳ و ۸۸۸۸ و یک worker.
@@ -44,7 +44,7 @@ curl -fsSL https://raw.githubusercontent.com/Sunny8886667/MTProxy/main/install.s
 برای نمایش گزینه‌ها، ابتدا فایل را دانلود و سپس به‌صورت تعاملی اجرا کنید:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/Sunny8886667/MTProxy/main/install.sh -o mtproxy-install.sh && sudo bash mtproxy-install.sh
+curl -fsSL https://raw.githubusercontent.com/Sunny8886667/MTProxy/main/install.sh | tr -d '\r' > mtproxy-install.sh && sudo bash mtproxy-install.sh
 ```
 
 برای سرور production بهتر است ابتدا اسکریپت را دانلود و بررسی کنید.
@@ -123,4 +123,3 @@ sudo bash uninstall.sh
 - [TelegramMessenger/MTProxy](https://github.com/TelegramMessenger/MTProxy)
 - [README رسمی MTProxy](https://github.com/TelegramMessenger/MTProxy/blob/master/README.md)
 - [مستندات رسمی MTProto transports](https://core.telegram.org/mtproto/mtproto-transports)
-
