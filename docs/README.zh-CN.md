@@ -139,7 +139,7 @@ Telegram 官方当前 MTProxy 快速开始文档没有提供标准的 TLS 域名
 ## 卸载
 
 ```bash
-sudo bash uninstall.sh
+sudo bash mtproxy-install.sh uninstall
 ```
 
 卸载脚本默认只删除服务，保留程序和配置，避免误删 secret。确认不再需要后，再按照脚本提示手动删除目录。
@@ -149,3 +149,4 @@ sudo bash uninstall.sh
 - [TelegramMessenger/MTProxy 官方仓库](https://github.com/TelegramMessenger/MTProxy)
 - [官方 MTProxy README](https://github.com/TelegramMessenger/MTProxy/blob/master/README.md)
 - [官方 MTProto transports 文档](https://core.telegram.org/mtproto/mtproto-transports)
+
