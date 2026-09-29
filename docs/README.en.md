@@ -44,8 +44,7 @@ This uses safe defaults: Chinese, an automatically generated secret, no tag, aut
 To keep the prompts, download and run it interactively:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/Sunny8886667/MTProxy/main/install.sh -o mtproxy-install.sh
-sudo bash mtproxy-install.sh
+curl -fsSL https://raw.githubusercontent.com/Sunny8886667/MTProxy/main/install.sh -o mtproxy-install.sh && sudo bash mtproxy-install.sh
 ```
 
 For production servers, download and review the script before executing it.
