@@ -1239,7 +1239,7 @@ menu_action() {
         read -r -p "$(msg menu_prompt)" menu_choice
 
         case "${menu_choice}" in
-            1) install_flow 0 ;;
+            1) install_flow 1; return ;;
             2) YES="0"; PURGE="0"; uninstall_action ;;
             3) show_status ;;
             4) show_user_info ;;
@@ -1248,7 +1248,7 @@ menu_action() {
             7) stop_service_action ;;
             8) restart_service_action ;;
             9) update_config_action ;;
-            10) MTPROXY_UPGRADE="1"; install_flow 0 ;;
+            10) MTPROXY_UPGRADE="1"; install_flow 1; return ;;
             0) return ;;
             *) printf '%s\n' "$(msg invalid_action)" ;;
         esac
