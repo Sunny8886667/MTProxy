@@ -560,7 +560,9 @@ stats_value() {
 
 json_value() {
     local key="$1"
-    sed -n 's/.*"'"${key}"'"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p'
+    grep -o "\"${key}\"[[:space:]]*:[[:space:]]*\"[^\"]*\"" |
+        head -n 1 |
+        sed -E 's/^[^:]+:[[:space:]]*"//; s/"$//'
 }
 
 geo_for_ip() {
