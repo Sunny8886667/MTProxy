@@ -33,7 +33,7 @@ cd MTProxy
 sudo bash install.sh
 ```
 
-در حالت تعاملی ابتدا زبان را انتخاب می‌کنید و سپس منوی مدیریت برای نصب، حذف، اجرا، توقف، راه‌اندازی دوباره، اتصال و آمار کاربران، لاگ و ارتقا نمایش داده می‌شود.
+با اجرای بدون گزینه، ابتدا زبان را انتخاب می‌کنید، معرفی پروژه نمایش داده می‌شود و پس از Enter نصب مستقیماً شروع می‌شود. پس از نصب، برای ورود به پنل مدیریت `menu` را وارد کنید.
 
 ### نصب یک‌خطی
 
@@ -47,7 +47,13 @@ curl -fsSL https://raw.githubusercontent.com/Sunny8886667/MTProxy/main/install.s
 
 ## فرمان‌های مدیریت
 
-پس از clone کردن مخزن، منوی مدیریت را اجرا کنید:
+پس از نصب، برای ورود به منوی مدیریت اجرا کنید:
+
+```bash
+menu
+```
+
+یا:
 
 ```bash
 sudo bash install.sh menu
@@ -73,7 +79,8 @@ sudo bash install.sh uninstall --purge --yes
 همچنین می‌توانید منوی مدیریت را مستقیماً از GitHub باز کنید:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/Sunny8886667/MTProxy/main/install.sh | tr -d '\r' | sudo bash -s -- menu
+curl -fsSL https://raw.githubusercontent.com/Sunny8886667/MTProxy/main/install.sh -o /tmp/mtproxy-install.sh
+sudo bash /tmp/mtproxy-install.sh menu
 ```
 
 ## گزینه‌های نصب‌کننده
