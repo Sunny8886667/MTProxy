@@ -57,6 +57,32 @@ bash install.sh --dry-run
 
 模拟模式不会安装依赖、编译源码、写入系统目录或启动服务。
 
+## 管理命令
+
+下载脚本后，可以使用以下命令管理 MTProxy：
+
+```bash
+sudo bash mtproxy-install.sh menu
+sudo bash mtproxy-install.sh status
+sudo bash mtproxy-install.sh connection
+sudo bash mtproxy-install.sh logs
+sudo bash mtproxy-install.sh restart
+sudo bash mtproxy-install.sh update-config
+sudo bash mtproxy-install.sh uninstall
+```
+
+默认卸载只删除 systemd 服务和定时器，会保留程序、配置和 secret。确认要全部删除时再执行：
+
+```bash
+sudo bash mtproxy-install.sh uninstall --purge --yes
+```
+
+也可以直接从 GitHub 执行管理命令，例如显示用户连接链接：
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/Sunny8886667/MTProxy/main/install.sh | tr -d '\r' | sudo bash -s -- connection
+```
+
 ## 安装过程中的选项
 
 1. 选择中文、English 或 فارسی；
