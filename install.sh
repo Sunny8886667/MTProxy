@@ -31,15 +31,37 @@ CLIENT_PORT="${MTPROXY_PORT:-443}"
 STATS_PORT="${MTPROXY_STATS_PORT:-8888}"
 WORKERS="${MTPROXY_WORKERS:-1}"
 DRY_RUN="${MTPROXY_DRY_RUN:-0}"
+ACTION="${MTPROXY_ACTION:-install}"
+YES="0"
+PURGE="0"
+FOLLOW="0"
 
 for argument in "$@"; do
     case "${argument}" in
+        install) ACTION="install" ;;
+        uninstall) ACTION="uninstall" ;;
+        status) ACTION="status" ;;
+        logs) ACTION="logs" ;;
+        connection|link) ACTION="connection" ;;
+        start) ACTION="start" ;;
+        stop) ACTION="stop" ;;
+        restart) ACTION="restart" ;;
+        update-config|update_config) ACTION="update-config" ;;
+        upgrade) ACTION="upgrade" ;;
+        menu) ACTION="menu" ;;
         --dry-run) DRY_RUN="1" ;;
         --non-interactive|--unattended) NONINTERACTIVE="1" ;;
+        --yes|-y) YES="1" ;;
+        --purge) PURGE="1" ;;
+        --follow|-f) FOLLOW="1" ;;
         --help|-h)
-            printf 'Usage: sudo bash install.sh [--dry-run] [--non-interactive]\n'
+            printf 'Usage: sudo bash install.sh [action] [options]\n'
+            printf 'Actions: install, uninstall, status, connection, logs, start, stop, restart, update-config, upgrade, menu\n'
             printf '  --dry-run  Test the interactive flow without changing the system.\n'
             printf '  --non-interactive  Install with safe defaults without prompts.\n'
+            printf '  --yes  Confirm an uninstall without prompting.\n'
+            printf '  --purge  Also remove the installed program and configuration during uninstall.\n'
+            printf '  --follow  Follow logs instead of printing the last 100 lines.\n'
             exit 0
             ;;
         *)
@@ -113,6 +135,27 @@ msg() {
         zh:logs) printf '查看日志：sudo journalctl -u mtproxy -f' ;;
         zh:config_file) printf '配置目录：%s' "${CONFIG_DIR}" ;;
         zh:upgrade_note) printf '如需升级官方源码，可重新运行：MTPROXY_UPGRADE=1 sudo -E bash install.sh' ;;
+        zh:menu_title) printf 'MTProxy 管理菜单' ;;
+        zh:menu_install) printf '安装 / 重新配置 MTProxy' ;;
+        zh:menu_uninstall) printf '卸载 MTProxy 服务（保留程序和配置）' ;;
+        zh:menu_status) printf '查看服务状态' ;;
+        zh:menu_connection) printf '显示用户连接链接' ;;
+        zh:menu_logs) printf '查看运行日志' ;;
+        zh:menu_start) printf '启动服务' ;;
+        zh:menu_stop) printf '停止服务' ;;
+        zh:menu_restart) printf '重启服务' ;;
+        zh:menu_update) printf '更新官方配置' ;;
+        zh:menu_upgrade) printf '升级官方源码并重新编译' ;;
+        zh:menu_exit) printf '退出' ;;
+        zh:menu_prompt) printf '请选择操作 [0-10]： ' ;;
+        zh:invalid_action) printf '操作无效，请重新选择。' ;;
+        zh:uninstall_confirm) printf '确认卸载 MTProxy 服务吗？程序和配置默认保留 [y/N]： ' ;;
+        zh:uninstall_purge_confirm) printf '确认同时删除程序和配置吗？此操作不可恢复 [y/N]： ' ;;
+        zh:uninstall_done) printf 'MTProxy 服务已卸载。' ;;
+        zh:data_kept) printf '程序和配置已保留：%s、%s' "${INSTALL_DIR}" "${CONFIG_DIR}" ;;
+        zh:not_installed) printf 'MTProxy 尚未安装或配置文件不存在。' ;;
+        zh:action_done) printf '操作完成。' ;;
+        zh:connection_missing) printf '找不到 MTProxy 配置，请先执行安装。' ;;
         zh:firewall_note) printf '请确保云厂商安全组和系统防火墙放行客户端端口 %s；统计端口默认仅供本机访问。' "${CLIENT_PORT}" ;;
         zh:dry_run) printf '模拟运行模式：不会安装依赖、编译源码、写入系统目录或启动服务。' ;;
         zh:dry_run_done) printf '模拟运行完成。上面的配置只用于测试交互，没有任何系统改动。' ;;
@@ -159,6 +202,27 @@ msg() {
         en:logs) printf 'View logs: sudo journalctl -u mtproxy -f' ;;
         en:config_file) printf 'Configuration directory: %s' "${CONFIG_DIR}" ;;
         en:upgrade_note) printf 'To upgrade the official source, run: MTPROXY_UPGRADE=1 sudo -E bash install.sh' ;;
+        en:menu_title) printf 'MTProxy management menu' ;;
+        en:menu_install) printf 'Install / reconfigure MTProxy' ;;
+        en:menu_uninstall) printf 'Uninstall MTProxy service (keep program and config)' ;;
+        en:menu_status) printf 'Show service status' ;;
+        en:menu_connection) printf 'Show user connection link' ;;
+        en:menu_logs) printf 'View service logs' ;;
+        en:menu_start) printf 'Start service' ;;
+        en:menu_stop) printf 'Stop service' ;;
+        en:menu_restart) printf 'Restart service' ;;
+        en:menu_update) printf 'Update official configuration' ;;
+        en:menu_upgrade) printf 'Upgrade and rebuild official source' ;;
+        en:menu_exit) printf 'Exit' ;;
+        en:menu_prompt) printf 'Choose an action [0-10]: ' ;;
+        en:invalid_action) printf 'Invalid action. Try again.' ;;
+        en:uninstall_confirm) printf 'Uninstall the MTProxy service? The program and config are kept by default [y/N]: ' ;;
+        en:uninstall_purge_confirm) printf 'Also delete the program and config? This cannot be undone [y/N]: ' ;;
+        en:uninstall_done) printf 'The MTProxy service has been uninstalled.' ;;
+        en:data_kept) printf 'Program and config kept: %s, %s' "${INSTALL_DIR}" "${CONFIG_DIR}" ;;
+        en:not_installed) printf 'MTProxy is not installed or its configuration is missing.' ;;
+        en:action_done) printf 'Action completed.' ;;
+        en:connection_missing) printf 'MTProxy configuration was not found. Install it first.' ;;
         en:firewall_note) printf 'Allow client port %s in your cloud security group and firewall; the stats port is local-only by default.' "${CLIENT_PORT}" ;;
         en:dry_run) printf 'Dry-run mode: no dependencies, source build, system files, or services will be changed.' ;;
         en:dry_run_done) printf 'Dry run complete. The values above were only used to test the interaction; no system changes were made.' ;;
@@ -205,6 +269,27 @@ msg() {
         fa:logs) printf 'مشاهدهٔ لاگ: sudo journalctl -u mtproxy -f' ;;
         fa:config_file) printf 'پوشهٔ پیکربندی: %s' "${CONFIG_DIR}" ;;
         fa:upgrade_note) printf 'برای ارتقای کد رسمی اجرا کنید: MTPROXY_UPGRADE=1 sudo -E bash install.sh' ;;
+        fa:menu_title) printf 'منوی مدیریت MTProxy' ;;
+        fa:menu_install) printf 'نصب یا پیکربندی دوبارهٔ MTProxy' ;;
+        fa:menu_uninstall) printf 'حذف سرویس MTProxy (حفظ برنامه و تنظیمات)' ;;
+        fa:menu_status) printf 'نمایش وضعیت سرویس' ;;
+        fa:menu_connection) printf 'نمایش پیوند اتصال کاربر' ;;
+        fa:menu_logs) printf 'مشاهدهٔ لاگ سرویس' ;;
+        fa:menu_start) printf 'اجرای سرویس' ;;
+        fa:menu_stop) printf 'توقف سرویس' ;;
+        fa:menu_restart) printf 'راه‌اندازی دوبارهٔ سرویس' ;;
+        fa:menu_update) printf 'به‌روزرسانی پیکربندی رسمی' ;;
+        fa:menu_upgrade) printf 'ارتقا و ساخت دوبارهٔ کد رسمی' ;;
+        fa:menu_exit) printf 'خروج' ;;
+        fa:menu_prompt) printf 'یک عملیات را انتخاب کنید [۰ تا ۱۰]: ' ;;
+        fa:invalid_action) printf 'عملیات نامعتبر است؛ دوباره انتخاب کنید.' ;;
+        fa:uninstall_confirm) printf 'سرویس MTProxy حذف شود؟ برنامه و تنظیمات به‌صورت پیش‌فرض حفظ می‌شوند [y/N]: ' ;;
+        fa:uninstall_purge_confirm) printf 'برنامه و تنظیمات هم حذف شوند؟ این کار قابل بازگشت نیست [y/N]: ' ;;
+        fa:uninstall_done) printf 'سرویس MTProxy حذف شد.' ;;
+        fa:data_kept) printf 'برنامه و تنظیمات حفظ شدند: %s، %s' "${INSTALL_DIR}" "${CONFIG_DIR}" ;;
+        fa:not_installed) printf 'MTProxy نصب نشده یا فایل تنظیمات آن وجود ندارد.' ;;
+        fa:action_done) printf 'عملیات کامل شد.' ;;
+        fa:connection_missing) printf 'تنظیمات MTProxy پیدا نشد؛ ابتدا آن را نصب کنید.' ;;
         fa:firewall_note) printf 'پورت %s را در فایروال و security group باز کنید؛ پورت آمار به‌صورت پیش‌فرض فقط محلی است.' "${CLIENT_PORT}" ;;
         fa:dry_run) printf 'حالت آزمایشی: هیچ وابستگی، کد، فایل سیستمی یا سرویسی تغییر نمی‌کند.' ;;
         fa:dry_run_done) printf 'اجرای آزمایشی کامل شد. مقادیر بالا فقط برای تست تعامل بودند و تغییری در سیستم ایجاد نشد.' ;;
@@ -268,6 +353,111 @@ require_root() {
     [[ "${EUID}" -eq 0 ]] || die "$(msg root_required)"
 }
 
+require_systemctl() {
+    command -v systemctl >/dev/null 2>&1 || die "$(msg systemd_required)"
+}
+
+runtime_value() {
+    local key="$1"
+    [[ -r "${CONFIG_DIR}/mtproxy.env" ]] || return 1
+    awk -F= -v wanted_key="${key}" '$1 == wanted_key {print substr($0, index($0, "=") + 1); exit}' "${CONFIG_DIR}/mtproxy.env"
+}
+
+show_connection() {
+    local secret host port prefix
+    [[ -r "${CONFIG_DIR}/mtproxy.env" ]] || die "$(msg connection_missing)"
+    secret="$(runtime_value MTPROXY_SECRET)"
+    host="$(runtime_value MTPROXY_PUBLIC_HOST)"
+    port="$(runtime_value MTPROXY_PORT)"
+    prefix="$(runtime_value MTPROXY_CLIENT_SECRET_PREFIX || true)"
+    [[ -n "${secret}" && -n "${host}" && -n "${port}" ]] || die "$(msg connection_missing)"
+
+    printf '\n============================================================\n'
+    printf '%s\n' "$(msg link)"
+    printf 'tg://proxy?server=%s&port=%s&secret=%s%s\n' "${host}" "${port}" "${prefix}" "${secret}"
+    printf '%s\n' "$(msg firewall_note)"
+    printf '============================================================\n'
+}
+
+show_status() {
+    require_systemctl
+    printf '\n--- mtproxy.service ---\n'
+    systemctl status "${SERVICE_NAME}.service" --no-pager -l || true
+    printf '\n--- mtproxy-config-update.timer ---\n'
+    systemctl status "${SERVICE_NAME}-config-update.timer" --no-pager -l || true
+}
+
+show_logs() {
+    require_systemctl
+    if [[ "${FOLLOW}" == "1" ]]; then
+        journalctl -u "${SERVICE_NAME}.service" -f
+    else
+        journalctl -u "${SERVICE_NAME}.service" -n 100 --no-pager
+    fi
+}
+
+start_service_action() {
+    require_systemctl
+    systemctl enable --now "${SERVICE_NAME}.service"
+    printf '%s\n' "$(msg action_done)"
+}
+
+stop_service_action() {
+    require_systemctl
+    systemctl disable --now "${SERVICE_NAME}.service" || true
+    printf '%s\n' "$(msg action_done)"
+}
+
+restart_service_action() {
+    require_systemctl
+    systemctl daemon-reload
+    systemctl restart "${SERVICE_NAME}.service"
+    printf '%s\n' "$(msg action_done)"
+}
+
+update_config_action() {
+    require_systemctl
+    [[ -x /usr/local/sbin/mtproxy-update-config ]] || die "$(msg not_installed)"
+    /usr/local/sbin/mtproxy-update-config
+    printf '%s\n' "$(msg action_done)"
+}
+
+uninstall_action() {
+    require_systemctl
+    if [[ "${YES}" != "1" ]]; then
+        if [[ "${NONINTERACTIVE}" == "1" ]]; then
+            die 'Non-interactive uninstall requires --yes.'
+        fi
+        local answer
+        if [[ "${PURGE}" == "1" ]]; then
+            read -r -p "$(msg uninstall_purge_confirm)" answer
+        else
+            read -r -p "$(msg uninstall_confirm)" answer
+        fi
+        [[ "${answer}" =~ ^[Yy]$ ]] || { printf '%s\n' 'Cancelled.'; return; }
+    fi
+
+    systemctl disable --now "${SERVICE_NAME}.service" 2>/dev/null || true
+    systemctl disable --now "${SERVICE_NAME}-config-update.timer" 2>/dev/null || true
+    rm -f \
+        "/etc/systemd/system/${SERVICE_NAME}.service" \
+        "/etc/systemd/system/${SERVICE_NAME}-config-update.service" \
+        "/etc/systemd/system/${SERVICE_NAME}-config-update.timer" \
+        /usr/local/sbin/mtproxy-update-config
+    systemctl daemon-reload
+
+    if [[ "${PURGE}" == "1" ]]; then
+        [[ "${INSTALL_DIR}" != "/" && "${INSTALL_DIR}" != "/opt" ]] || die 'Refusing to purge an unsafe install path.'
+        [[ "${CONFIG_DIR}" != "/" && "${CONFIG_DIR}" != "/etc" ]] || die 'Refusing to purge an unsafe config path.'
+        rm -rf -- "${INSTALL_DIR}" "${CONFIG_DIR}"
+    fi
+
+    printf '%s\n' "$(msg uninstall_done)"
+    if [[ "${PURGE}" != "1" ]]; then
+        printf '%s\n' "$(msg data_kept)"
+    fi
+}
+
 get_os_id() {
     [[ -r /etc/os-release ]] || die "$(msg unsupported_os)"
     OS_ID="$(awk -F= '$1 == "ID" {gsub(/"/, "", $2); print tolower($2)}' /etc/os-release)"
@@ -328,6 +518,9 @@ detect_public_host() {
 
 ask_settings() {
     if [[ -r "${CONFIG_DIR}/mtproxy.env" ]]; then
+        if [[ -z "${CLIENT_SECRET_PREFIX}" ]]; then
+            CLIENT_SECRET_PREFIX="$(awk -F= '$1 == "MTPROXY_CLIENT_SECRET_PREFIX" {print substr($0, index($0, "=") + 1); exit}' "${CONFIG_DIR}/mtproxy.env")"
+        fi
         if [[ -z "${SECRET}" ]]; then
             SECRET="$(awk -F= '$1 == "MTPROXY_SECRET" {print substr($0, index($0, "=") + 1); exit}' "${CONFIG_DIR}/mtproxy.env")"
         fi
@@ -508,6 +701,7 @@ write_runtime_config() {
     umask 077
     cat > "${CONFIG_DIR}/mtproxy.env" <<EOF
 MTPROXY_SECRET=${SECRET}
+MTPROXY_CLIENT_SECRET_PREFIX=${CLIENT_SECRET_PREFIX}
 MTPROXY_TAG=${TAG}
 MTPROXY_PUBLIC_HOST=${PUBLIC_HOST}
 MTPROXY_PORT=${CLIENT_PORT}
@@ -647,7 +841,7 @@ show_result() {
     printf '============================================================\n'
 }
 
-main() {
+install_flow() {
     choose_language
     show_homepage
     require_root
@@ -661,6 +855,66 @@ main() {
     write_update_service
     start_services
     show_result
+}
+
+menu_action() {
+    [[ -t 0 && -t 1 ]] || die 'The management menu requires an interactive terminal.'
+    choose_language
+
+    while true; do
+        printf '\n============================================================\n'
+        printf '%s\n' "$(msg menu_title)"
+        printf '============================================================\n'
+        printf '1) %s\n' "$(msg menu_install)"
+        printf '2) %s\n' "$(msg menu_uninstall)"
+        printf '3) %s\n' "$(msg menu_status)"
+        printf '4) %s\n' "$(msg menu_connection)"
+        printf '5) %s\n' "$(msg menu_logs)"
+        printf '6) %s\n' "$(msg menu_start)"
+        printf '7) %s\n' "$(msg menu_stop)"
+        printf '8) %s\n' "$(msg menu_restart)"
+        printf '9) %s\n' "$(msg menu_update)"
+        printf '10) %s\n' "$(msg menu_upgrade)"
+        printf '0) %s\n' "$(msg menu_exit)"
+        read -r -p "$(msg menu_prompt)" menu_choice
+
+        case "${menu_choice}" in
+            1) install_flow ;;
+            2) YES="0"; PURGE="0"; uninstall_action ;;
+            3) show_status ;;
+            4) show_connection ;;
+            5) FOLLOW="0"; show_logs ;;
+            6) start_service_action ;;
+            7) stop_service_action ;;
+            8) restart_service_action ;;
+            9) update_config_action ;;
+            10) MTPROXY_UPGRADE="1"; install_flow ;;
+            0) return ;;
+            *) printf '%s\n' "$(msg invalid_action)" ;;
+        esac
+    done
+}
+
+main() {
+    case "${ACTION}" in
+        install|upgrade|menu) ;;
+        *) choose_language ;;
+    esac
+
+    case "${ACTION}" in
+        install) install_flow ;;
+        upgrade) MTPROXY_UPGRADE="1"; install_flow ;;
+        uninstall) require_root; uninstall_action ;;
+        status) require_root; show_status ;;
+        connection) require_root; show_connection ;;
+        logs) require_root; show_logs ;;
+        start) require_root; start_service_action ;;
+        stop) require_root; stop_service_action ;;
+        restart) require_root; restart_service_action ;;
+        update-config) require_root; update_config_action ;;
+        menu) require_root; menu_action ;;
+        *) die "Unknown action: ${ACTION}" ;;
+    esac
 }
 
 main "$@"
