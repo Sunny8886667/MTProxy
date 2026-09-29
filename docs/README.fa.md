@@ -44,8 +44,7 @@ curl -fsSL https://raw.githubusercontent.com/Sunny8886667/MTProxy/main/install.s
 برای نمایش گزینه‌ها، ابتدا فایل را دانلود و سپس به‌صورت تعاملی اجرا کنید:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/Sunny8886667/MTProxy/main/install.sh -o mtproxy-install.sh
-sudo bash mtproxy-install.sh
+curl -fsSL https://raw.githubusercontent.com/Sunny8886667/MTProxy/main/install.sh -o mtproxy-install.sh && sudo bash mtproxy-install.sh
 ```
 
 برای سرور production بهتر است ابتدا اسکریپت را دانلود و بررسی کنید.
