@@ -613,7 +613,12 @@ start_services() {
     fi
     printf '%s\n' "$(msg service_starting)"
     systemctl daemon-reload
-    systemctl enable --now "${SERVICE_NAME}.service"
+    systemctl enable "${SERVICE_NAME}.service"
+    if ! systemctl restart "${SERVICE_NAME}.service"; then
+        systemctl status "${SERVICE_NAME}.service" --no-pager -l || true
+        journalctl -u "${SERVICE_NAME}.service" -n 80 --no-pager || true
+        die "$(msg service_failed)"
+    fi
     systemctl enable --now "${SERVICE_NAME}-config-update.timer"
     if ! systemctl is-active --quiet "${SERVICE_NAME}.service"; then
         systemctl status "${SERVICE_NAME}.service" --no-pager -l || true
