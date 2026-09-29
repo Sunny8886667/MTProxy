@@ -36,11 +36,17 @@ sudo bash install.sh
 ### نصب یک‌خطی
 
 ```bash
+curl -fsSL https://raw.githubusercontent.com/Sunny8886667/MTProxy/main/install.sh | sudo bash
+```
+
+این دستور از مقادیر پیش‌فرض امن استفاده می‌کند: زبان چینی، secret خودکار، بدون tag، تشخیص خودکار IP عمومی، پورت‌های ۴۴۳ و ۸۸۸۸ و یک worker.
+
+برای نمایش گزینه‌ها، ابتدا فایل را دانلود و سپس به‌صورت تعاملی اجرا کنید:
+
+```bash
 curl -fsSL https://raw.githubusercontent.com/Sunny8886667/MTProxy/main/install.sh -o mtproxy-install.sh
 sudo bash mtproxy-install.sh
 ```
-
-اجرای مستقیم با روش `curl | sudo bash` نیز پشتیبانی می‌شود، اما در آن حالت مقادیر پیش‌فرض غیرتعاملی استفاده می‌شوند و پرسشی نمایش داده نمی‌شود.
 
 برای سرور production بهتر است ابتدا اسکریپت را دانلود و بررسی کنید.
 
