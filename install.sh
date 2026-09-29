@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# Keep this installer LF-terminated for direct Linux execution.
 set -Eeuo pipefail
 IFS=$'\n\t'
 
