@@ -34,9 +34,11 @@ DRY_RUN="${MTPROXY_DRY_RUN:-0}"
 for argument in "$@"; do
     case "${argument}" in
         --dry-run) DRY_RUN="1" ;;
+        --non-interactive|--unattended) NONINTERACTIVE="1" ;;
         --help|-h)
-            printf 'Usage: sudo bash install.sh [--dry-run]\n'
+            printf 'Usage: sudo bash install.sh [--dry-run] [--non-interactive]\n'
             printf '  --dry-run  Test the interactive flow without changing the system.\n'
+            printf '  --non-interactive  Install with safe defaults without prompts.\n'
             exit 0
             ;;
         *)
