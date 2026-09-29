@@ -33,7 +33,7 @@ cd MTProxy
 sudo bash install.sh
 ```
 
-The cloned interactive mode asks for a language first, then opens a management menu for installation, uninstall, start, stop, restart, user connection/statistics, logs, and upgrades.
+Running without an action asks for a language, shows the project introduction, waits for Enter, and then starts the installation. After installation, type `menu` to open the management panel.
 
 ### One-line installation
 
@@ -47,7 +47,13 @@ For production servers, download and review the script before executing it.
 
 ## Management commands
 
-After cloning the repository, open the management menu with:
+After installation, open the management menu with:
+
+```bash
+menu
+```
+
+You can also use:
 
 ```bash
 sudo bash install.sh menu
@@ -73,7 +79,8 @@ sudo bash install.sh uninstall --purge --yes
 You can also open the management menu directly from GitHub:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/Sunny8886667/MTProxy/main/install.sh | tr -d '\r' | sudo bash -s -- menu
+curl -fsSL https://raw.githubusercontent.com/Sunny8886667/MTProxy/main/install.sh -o /tmp/mtproxy-install.sh
+sudo bash /tmp/mtproxy-install.sh menu
 ```
 
 ## Installer choices
