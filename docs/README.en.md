@@ -139,7 +139,7 @@ The current official MTProxy quick-start does not document a standard TLS-domain
 ## Uninstall
 
 ```bash
-sudo bash uninstall.sh
+sudo bash mtproxy-install.sh uninstall
 ```
 
 The uninstall script removes the services but keeps the binary and configuration by default, so your secret is not accidentally destroyed. Remove the directories manually after reviewing them.
@@ -149,3 +149,4 @@ The uninstall script removes the services but keeps the binary and configuration
 - [TelegramMessenger/MTProxy](https://github.com/TelegramMessenger/MTProxy)
 - [Official MTProxy README](https://github.com/TelegramMessenger/MTProxy/blob/master/README.md)
 - [Official MTProto transports documentation](https://core.telegram.org/mtproto/mtproto-transports)
+
