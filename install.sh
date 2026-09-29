@@ -489,6 +489,7 @@ show_homepage() {
     if [[ "${NONINTERACTIVE}" != "1" ]]; then
         read -r -p "$(msg continue)" _
     fi
+    printf '\n'
 }
 
 require_root() {
