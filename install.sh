@@ -309,6 +309,8 @@ msg() {
         fa:firewall_note) printf 'پورت %s را در فایروال و security group باز کنید؛ پورت آمار به‌صورت پیش‌فرض فقط محلی است.' "${CLIENT_PORT}" ;;
         fa:dry_run) printf 'حالت آزمایشی: هیچ وابستگی، کد، فایل سیستمی یا سرویسی تغییر نمی‌کند.' ;;
         fa:dry_run_done) printf 'اجرای آزمایشی کامل شد. مقادیر بالا فقط برای تست تعامل بودند و تغییری در سیستم ایجاد نشد.' ;;
+        *:language_prompt) printf '请选择语言 / Select language / انتخاب زبان [1-3，默认 1]: ' ;;
+        *:invalid_choice) printf '选择无效 / Invalid choice / انتخاب نامعتبر' ;;
         *) printf '%s' "${key}" ;;
     esac
 }
