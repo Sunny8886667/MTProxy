@@ -12,13 +12,15 @@ Languages:
 
 ## Quick install
 
-Interactive installation after cloning:
+Clone and run:
 
 ```bash
 git clone https://github.com/Sunny8886667/MTProxy.git
 cd MTProxy
 sudo bash install.sh
 ```
+
+The interactive mode asks for a language first, then opens the management menu for installation, uninstall, start, stop, restart, user connection/statistics, logs, and upgrades.
 
 One-command automatic installation:
 
@@ -28,42 +30,33 @@ curl -fsSL https://raw.githubusercontent.com/Sunny8886667/MTProxy/main/install.s
 
 This uses safe defaults: Chinese, an automatically generated secret, no tag, automatic public IP detection, ports 443/8888, and one worker.
 
-To keep the prompts, download and run it interactively:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/Sunny8886667/MTProxy/main/install.sh | tr -d '\r' > mtproxy-install.sh && sudo bash mtproxy-install.sh
-```
-
 For security, review the script before executing it on a production server.
-
-Test the complete interactive flow without changing the system:
-
-```bash
-bash install.sh --dry-run
-```
-
-Dry-run mode does not require root and does not install packages, compile code, write system files, or start services.
 
 ## Management commands
 
-After downloading the script, you can manage MTProxy with:
+After cloning the repository, open the management menu with:
 
 ```bash
-sudo bash mtproxy-install.sh menu
-sudo bash mtproxy-install.sh status
-sudo bash mtproxy-install.sh connection
-sudo bash mtproxy-install.sh logs
-sudo bash mtproxy-install.sh restart
-sudo bash mtproxy-install.sh update-config
-sudo bash mtproxy-install.sh uninstall
+sudo bash install.sh menu
+```
+
+You can also run an individual action:
+
+```bash
+sudo bash install.sh status
+sudo bash install.sh connection
+sudo bash install.sh logs
+sudo bash install.sh restart
+sudo bash install.sh update-config
+sudo bash install.sh uninstall
 ```
 
 The default uninstall removes the systemd service and timer but keeps the program, configuration, and secret. To remove those as well, use `sudo bash mtproxy-install.sh uninstall --purge --yes` after reviewing the command.
 
-The same actions can be run directly from GitHub. For example:
+The interactive menu can also be opened directly from GitHub:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/Sunny8886667/MTProxy/main/install.sh | tr -d '\r' | sudo bash -s -- connection
+curl -fsSL https://raw.githubusercontent.com/Sunny8886667/MTProxy/main/install.sh | tr -d '\r' | sudo bash -s -- menu
 ```
 
 ## What it installs
@@ -86,3 +79,4 @@ Official references:
 ## Disclaimer
 
 This repository is an independent installer and is not published by Telegram. Users are responsible for complying with the laws, policies, and network rules applicable to their server and location.
+
