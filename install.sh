@@ -1179,10 +1179,12 @@ start_services() {
 
 show_result() {
     local proxy_link="tg://proxy?server=${PUBLIC_HOST}&port=${CLIENT_PORT}&secret=${CLIENT_SECRET_PREFIX}${SECRET}"
+    local https_proxy_link="https://t.me/proxy?server=${PUBLIC_HOST}&port=${CLIENT_PORT}&secret=${CLIENT_SECRET_PREFIX}${SECRET}"
     printf '\n============================================================\n'
     printf '%s\n' "$(msg done)"
-    printf '%s\n' "$(msg link)"
-    printf '%s\n' "${proxy_link}"
+    printf '\n%s\n\n' "$(msg link)"
+    printf '%s\n\n' "${proxy_link}"
+    printf '%s\n\n' "${https_proxy_link}"
     printf '%s\n' "$(msg stats)"
     printf '%s\n' "$(msg logs)"
     printf '%s\n' "$(msg config_file)"
