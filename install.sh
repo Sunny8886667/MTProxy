@@ -404,9 +404,19 @@ build_mtproxy() {
     fi
     printf '%s\n' "$(msg building)"
     TMP_ROOT="$(mktemp -d /tmp/mtproxy-installer.XXXXXX)"
+    # mktemp creates a root-only directory. The source is cloned and built as
+    # mtproxy, so hand ownership of the temporary workspace to that user.
+    chown mtproxy "${TMP_ROOT}"
+    chmod 0750 "${TMP_ROOT}"
     local source_dir="${TMP_ROOT}/MTProxy"
     runuser -u mtproxy -- git clone --depth=1 --branch "${UPSTREAM_REF}" "${UPSTREAM_REPO}" "${source_dir}"
-    runuser -u mtproxy -- make -C "${source_dir}" -j"$(nproc)"
+    if ! runuser -u mtproxy -- make -C "${source_dir}" -j"$(nproc)"; then
+        # Newer GCC versions default to -fno-common. Some upstream revisions
+        # still contain common symbols, so retry with the compatibility flag.
+        printf '%s\n' 'Initial MTProxy build failed; retrying with -fcommon for newer GCC toolchains...'
+        runuser -u mtproxy -- make -C "${source_dir}" clean || true
+        runuser -u mtproxy -- make -C "${source_dir}" -j"$(nproc)" 'CFLAGS+=-fcommon' || die 'MTProxy build failed. Review the compiler output above.'
+    fi
     [[ -x "${source_dir}/objs/bin/mtproto-proxy" ]] || die "MTProxy build did not produce the expected binary."
 
     install -d -o root -g root -m 0755 "${INSTALL_DIR}/objs/bin"
