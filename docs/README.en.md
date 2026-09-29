@@ -33,42 +33,35 @@ cd MTProxy
 sudo bash install.sh
 ```
 
+The cloned interactive mode asks for a language first, then opens a management menu for installation, uninstall, start, stop, restart, user connection/statistics, logs, and upgrades.
+
 ### One-line installation
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/Sunny8886667/MTProxy/main/install.sh | tr -d '\r' | sudo bash
 ```
 
-This uses safe defaults: Chinese, an automatically generated secret, no tag, automatic public IP detection, ports 443/8888, and one worker.
-
-To keep the prompts, download and run it interactively:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/Sunny8886667/MTProxy/main/install.sh | tr -d '\r' > mtproxy-install.sh && sudo bash mtproxy-install.sh
-```
+This directly installs with safe defaults: Chinese, an automatically generated secret, no tag, automatic public IP detection, ports 443/8888, and one worker.
 
 For production servers, download and review the script before executing it.
 
-Test the complete interaction without changing the system:
-
-```bash
-bash install.sh --dry-run
-```
-
-Dry-run mode does not require root and does not install packages, compile code, write system files, or start services.
-
 ## Management commands
 
-After downloading the script, manage MTProxy with:
+After cloning the repository, open the management menu with:
 
 ```bash
-sudo bash mtproxy-install.sh menu
-sudo bash mtproxy-install.sh status
-sudo bash mtproxy-install.sh connection
-sudo bash mtproxy-install.sh logs
-sudo bash mtproxy-install.sh restart
-sudo bash mtproxy-install.sh update-config
-sudo bash mtproxy-install.sh uninstall
+sudo bash install.sh menu
+```
+
+You can also run an individual action:
+
+```bash
+sudo bash install.sh status
+sudo bash install.sh connection
+sudo bash install.sh logs
+sudo bash install.sh restart
+sudo bash install.sh update-config
+sudo bash install.sh uninstall
 ```
 
 The default uninstall removes the systemd service and timer but keeps the program, configuration, and secret. To remove everything, explicitly run:
@@ -77,10 +70,10 @@ The default uninstall removes the systemd service and timer but keeps the progra
 sudo bash mtproxy-install.sh uninstall --purge --yes
 ```
 
-You can also run management actions directly from GitHub. For example, show the user connection link:
+You can also open the management menu directly from GitHub:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/Sunny8886667/MTProxy/main/install.sh | tr -d '\r' | sudo bash -s -- connection
+curl -fsSL https://raw.githubusercontent.com/Sunny8886667/MTProxy/main/install.sh | tr -d '\r' | sudo bash -s -- menu
 ```
 
 ## Installer choices
