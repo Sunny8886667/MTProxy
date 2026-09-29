@@ -27,6 +27,7 @@ SECRET="${MTPROXY_SECRET:-}"
 CLIENT_SECRET_PREFIX=""
 TAG="${MTPROXY_TAG:-}"
 PUBLIC_HOST="${MTPROXY_PUBLIC_HOST:-}"
+NAT_INFO="${MTPROXY_NAT_INFO:-}"
 CLIENT_PORT="${MTPROXY_PORT:-443}"
 STATS_PORT="${MTPROXY_STATS_PORT:-8888}"
 WORKERS="${MTPROXY_WORKERS:-1}"
@@ -517,6 +518,21 @@ detect_public_host() {
     fi
 }
 
+detect_nat_info() {
+    NAT_INFO=""
+    [[ "${DRY_RUN}" == "1" ]] && return
+
+    local private_host global_host
+    private_host="$(ip -4 route get 8.8.8.8 2>/dev/null | awk '{for (i = 1; i <= NF; i++) if ($i == "src") {print $(i + 1); exit}}')"
+    global_host="${PUBLIC_HOST}"
+    if [[ ! "${global_host}" =~ ^[0-9]{1,3}(\.[0-9]{1,3}){3}$ ]]; then
+        global_host="$(curl -4fsS --max-time 8 https://api.ipify.org 2>/dev/null || true)"
+    fi
+    if [[ -n "${private_host}" && "${global_host}" =~ ^[0-9]{1,3}(\.[0-9]{1,3}){3}$ && "${private_host}" != "${global_host}" ]]; then
+        NAT_INFO="${private_host}:${global_host}"
+    fi
+}
+
 ask_settings() {
     if [[ -r "${CONFIG_DIR}/mtproxy.env" ]]; then
         if [[ -z "${CLIENT_SECRET_PREFIX}" ]]; then
@@ -695,8 +711,12 @@ write_runtime_config() {
         return
     fi
     local tag_args=""
+    local nat_args=""
     if [[ -n "${TAG}" ]]; then
         tag_args="-P ${TAG}"
+    fi
+    if [[ -n "${NAT_INFO}" ]]; then
+        nat_args="--nat-info ${NAT_INFO}"
     fi
 
     umask 077
@@ -705,6 +725,7 @@ MTPROXY_SECRET=${SECRET}
 MTPROXY_CLIENT_SECRET_PREFIX=${CLIENT_SECRET_PREFIX}
 MTPROXY_TAG=${TAG}
 MTPROXY_PUBLIC_HOST=${PUBLIC_HOST}
+MTPROXY_NAT_INFO=${NAT_INFO}
 MTPROXY_PORT=${CLIENT_PORT}
 MTPROXY_STATS_PORT=${STATS_PORT}
 MTPROXY_WORKERS=${WORKERS}
@@ -724,7 +745,7 @@ User=root
 Group=root
 WorkingDirectory=${INSTALL_DIR}
 EnvironmentFile=${CONFIG_DIR}/mtproxy.env
-ExecStart=${INSTALL_DIR}/objs/bin/mtproto-proxy -u nobody -p \${MTPROXY_STATS_PORT} -H \${MTPROXY_PORT} -S \${MTPROXY_SECRET} ${tag_args} --http-stats --aes-pwd ${CONFIG_DIR}/proxy-secret ${CONFIG_DIR}/proxy-multi.conf -M \${MTPROXY_WORKERS}
+ExecStart=${INSTALL_DIR}/objs/bin/mtproto-proxy -u nobody -p \${MTPROXY_STATS_PORT} -H \${MTPROXY_PORT} -S \${MTPROXY_SECRET} ${tag_args} --http-stats --allow-skip-dh ${nat_args} --aes-pwd ${CONFIG_DIR}/proxy-secret ${CONFIG_DIR}/proxy-multi.conf -M \${MTPROXY_WORKERS}
 Restart=on-failure
 RestartSec=5
 LimitNOFILE=131072
@@ -861,6 +882,7 @@ install_flow() {
     require_root
     install_dependencies
     ask_settings
+    detect_nat_info
     check_client_port
     ensure_user
     build_mtproxy
