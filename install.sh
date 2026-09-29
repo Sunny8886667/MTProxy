@@ -93,9 +93,9 @@ msg() {
         zh:host_prompt) printf '请输入服务器公网 IP 或域名（直接回车自动检测）： ' ;;
         zh:host_detected) printf '检测到公网地址：%s' "${PUBLIC_HOST}" ;;
         zh:host_invalid) printf '公网地址包含不支持的字符，请重新输入。' ;;
-        zh:port_prompt) printf '客户端端口 [443]： ' ;;
-        zh:stats_prompt) printf '本地统计端口 [8888]： ' ;;
-        zh:workers_prompt) printf 'Worker 数量 [1]： ' ;;
+        zh:port_prompt) printf '客户端端口 [%s]： ' "${CLIENT_PORT}" ;;
+        zh:stats_prompt) printf '本地统计端口 [%s]： ' "${STATS_PORT}" ;;
+        zh:workers_prompt) printf 'Worker 数量 [%s]： ' "${WORKERS}" ;;
         zh:port_invalid) printf '端口必须是 1 到 65535 之间的数字。' ;;
         zh:workers_invalid) printf 'Worker 数量必须是正整数。' ;;
         zh:port_busy) printf '端口 %s 已被占用，请更换端口或停止占用它的服务。' "${CLIENT_PORT}" ;;
@@ -139,9 +139,9 @@ msg() {
         en:host_prompt) printf 'Enter the public IP or domain (press Enter to detect it): ' ;;
         en:host_detected) printf 'Detected public address: %s' "${PUBLIC_HOST}" ;;
         en:host_invalid) printf 'The public address contains unsupported characters. Try again.' ;;
-        en:port_prompt) printf 'Client port [443]: ' ;;
-        en:stats_prompt) printf 'Local stats port [8888]: ' ;;
-        en:workers_prompt) printf 'Worker count [1]: ' ;;
+        en:port_prompt) printf 'Client port [%s]: ' "${CLIENT_PORT}" ;;
+        en:stats_prompt) printf 'Local stats port [%s]: ' "${STATS_PORT}" ;;
+        en:workers_prompt) printf 'Worker count [%s]: ' "${WORKERS}" ;;
         en:port_invalid) printf 'The port must be a number from 1 to 65535.' ;;
         en:workers_invalid) printf 'Worker count must be a positive integer.' ;;
         en:port_busy) printf 'Port %s is already in use. Choose another port or stop the conflicting service.' "${CLIENT_PORT}" ;;
@@ -185,9 +185,9 @@ msg() {
         fa:host_prompt) printf 'IP عمومی یا دامنهٔ سرور را وارد کنید (Enter برای تشخیص خودکار): ' ;;
         fa:host_detected) printf 'نشانی عمومی شناسایی شد: %s' "${PUBLIC_HOST}" ;;
         fa:host_invalid) printf 'نشانی عمومی شامل کاراکتر پشتیبانی‌نشده است.' ;;
-        fa:port_prompt) printf 'پورت اتصال کاربران [443]: ' ;;
-        fa:stats_prompt) printf 'پورت آمار محلی [8888]: ' ;;
-        fa:workers_prompt) printf 'تعداد worker [1]: ' ;;
+        fa:port_prompt) printf 'پورت اتصال کاربران [%s]: ' "${CLIENT_PORT}" ;;
+        fa:stats_prompt) printf 'پورت آمار محلی [%s]: ' "${STATS_PORT}" ;;
+        fa:workers_prompt) printf 'تعداد worker [%s]: ' "${WORKERS}" ;;
         fa:port_invalid) printf 'پورت باید عددی بین ۱ تا ۶۵۵۳۵ باشد.' ;;
         fa:workers_invalid) printf 'تعداد worker باید یک عدد مثبت باشد.' ;;
         fa:port_busy) printf 'پورت %s در حال استفاده است؛ پورت دیگری انتخاب کنید.' "${CLIENT_PORT}" ;;
@@ -324,6 +324,27 @@ detect_public_host() {
 }
 
 ask_settings() {
+    if [[ -r "${CONFIG_DIR}/mtproxy.env" ]]; then
+        if [[ -z "${SECRET}" ]]; then
+            SECRET="$(awk -F= '$1 == "MTPROXY_SECRET" {print substr($0, index($0, "=") + 1); exit}' "${CONFIG_DIR}/mtproxy.env")"
+        fi
+        if [[ -z "${TAG}" ]]; then
+            TAG="$(awk -F= '$1 == "MTPROXY_TAG" {print substr($0, index($0, "=") + 1); exit}' "${CONFIG_DIR}/mtproxy.env")"
+        fi
+        if [[ -z "${PUBLIC_HOST}" ]]; then
+            PUBLIC_HOST="$(awk -F= '$1 == "MTPROXY_PUBLIC_HOST" {print substr($0, index($0, "=") + 1); exit}' "${CONFIG_DIR}/mtproxy.env")"
+        fi
+        if [[ "${MTPROXY_PORT+x}" != x ]]; then
+            CLIENT_PORT="$(awk -F= '$1 == "MTPROXY_PORT" {print substr($0, index($0, "=") + 1); exit}' "${CONFIG_DIR}/mtproxy.env")"
+        fi
+        if [[ "${MTPROXY_STATS_PORT+x}" != x ]]; then
+            STATS_PORT="$(awk -F= '$1 == "MTPROXY_STATS_PORT" {print substr($0, index($0, "=") + 1); exit}' "${CONFIG_DIR}/mtproxy.env")"
+        fi
+        if [[ "${MTPROXY_WORKERS+x}" != x ]]; then
+            WORKERS="$(awk -F= '$1 == "MTPROXY_WORKERS" {print substr($0, index($0, "=") + 1); exit}' "${CONFIG_DIR}/mtproxy.env")"
+        fi
+    fi
+
     if [[ -z "${SECRET}" ]]; then
         if [[ "${NONINTERACTIVE}" == "1" ]]; then
             SECRET="$(openssl rand -hex 16)"
@@ -367,19 +388,19 @@ ask_settings() {
 
     if [[ "${MTPROXY_PORT+x}" != x && "${NONINTERACTIVE}" != "1" ]]; then
         read -r -p "$(msg port_prompt)" entered_port
-        CLIENT_PORT="${entered_port:-443}"
+        CLIENT_PORT="${entered_port:-${CLIENT_PORT}}"
     fi
     validate_number "${CLIENT_PORT}" || die "$(msg port_invalid)"
 
     if [[ "${MTPROXY_STATS_PORT+x}" != x && "${NONINTERACTIVE}" != "1" ]]; then
         read -r -p "$(msg stats_prompt)" entered_stats_port
-        STATS_PORT="${entered_stats_port:-8888}"
+        STATS_PORT="${entered_stats_port:-${STATS_PORT}}"
     fi
     validate_number "${STATS_PORT}" || die "$(msg port_invalid)"
 
     if [[ "${MTPROXY_WORKERS+x}" != x && "${NONINTERACTIVE}" != "1" ]]; then
         read -r -p "$(msg workers_prompt)" entered_workers
-        WORKERS="${entered_workers:-1}"
+        WORKERS="${entered_workers:-${WORKERS}}"
     fi
     validate_workers "${WORKERS}" || die "$(msg workers_invalid)"
 }
