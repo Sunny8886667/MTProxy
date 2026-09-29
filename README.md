@@ -20,11 +20,14 @@ cd MTProxy
 sudo bash install.sh
 ```
 
-Non-interactive one-line installation with safe defaults:
+Download and run interactively:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/Sunny8886667/MTProxy/main/install.sh | sudo bash
+curl -fsSL https://raw.githubusercontent.com/Sunny8886667/MTProxy/main/install.sh -o mtproxy-install.sh
+sudo bash mtproxy-install.sh
 ```
+
+Piping directly to `sudo bash` is also supported, but it intentionally uses non-interactive safe defaults.
 
 For security, review the script before executing it on a production server.
 
