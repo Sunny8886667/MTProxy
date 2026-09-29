@@ -804,6 +804,18 @@ EOF
     chmod 0644 "/etc/systemd/system/${SERVICE_NAME}-config-update.service" "/etc/systemd/system/${SERVICE_NAME}-config-update.timer"
 }
 
+wait_for_stats() {
+    local attempt
+    for attempt in 1 2 3 4 5 6 7 8 9 10; do
+        if curl --fail --silent --show-error --max-time 2 "http://127.0.0.1:${STATS_PORT}/stats" >/dev/null 2>&1; then
+            return 0
+        fi
+        sleep 1
+    done
+    journalctl -u "${SERVICE_NAME}.service" -n 80 --no-pager || true
+    die "Statistics endpoint is not available on 127.0.0.1:${STATS_PORT}."
+}
+
 start_services() {
     if [[ "${DRY_RUN}" == "1" ]]; then
         printf '%s\n' 'DRY-RUN: skip enabling and starting mtproxy.service.'
@@ -823,6 +835,7 @@ start_services() {
         journalctl -u "${SERVICE_NAME}.service" -n 80 --no-pager || true
         die "$(msg service_failed)"
     fi
+    wait_for_stats
 }
 
 show_result() {
