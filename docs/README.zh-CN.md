@@ -44,8 +44,7 @@ curl -fsSL https://raw.githubusercontent.com/Sunny8886667/MTProxy/main/install.s
 如果需要显示交互选项，请使用下载后执行的方式：
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/Sunny8886667/MTProxy/main/install.sh -o mtproxy-install.sh
-sudo bash mtproxy-install.sh
+curl -fsSL https://raw.githubusercontent.com/Sunny8886667/MTProxy/main/install.sh -o mtproxy-install.sh && sudo bash mtproxy-install.sh
 ```
 
 生产服务器建议先下载并审查脚本，再执行。
