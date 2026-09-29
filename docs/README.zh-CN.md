@@ -63,7 +63,9 @@ bash install.sh --dry-run
 secret 支持：
 
 - 32 位十六进制标准 secret；
-- 以 `dd` 开头的 34 位十六进制 padded secret。
+- 也可以输入以 `dd` 开头的 34 位 padded secret；脚本会去掉 `dd` 启动服务，并在客户端链接中保留它。
+
+`@MTProxybot` 返回的 tag 必须是 32 位十六进制字符串。
 
 默认值：
 
