@@ -346,10 +346,12 @@ choose_language() {
 
 box_prepare() {
     local text
+    local text_width
     BOX_INNER_WIDTH=60
     for text in "$@"; do
-        if (( ${#text} > BOX_INNER_WIDTH )); then
-            BOX_INNER_WIDTH=${#text}
+        text_width="$(printf '%s\n' "${text}" | wc -L)"
+        if (( text_width + 2 > BOX_INNER_WIDTH )); then
+            BOX_INNER_WIDTH=$((text_width + 2))
         fi
     done
 }
@@ -360,8 +362,10 @@ box_border() {
 
 box_line() {
     local text="$1"
-    local text_length=${#text}
-    local padding=$((BOX_INNER_WIDTH - text_length))
+    local text_width
+    local padding
+    text_width="$(printf '%s\n' "${text}" | wc -L)"
+    padding=$((BOX_INNER_WIDTH - text_width))
     local left_padding=$((padding / 2))
     local right_padding=$((padding - left_padding))
     printf '*%*s%s%*s*\n' "${left_padding}" '' "${text}" "${right_padding}" ''
