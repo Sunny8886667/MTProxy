@@ -598,7 +598,7 @@ collect_client_ips() {
     local client_port="$1"
     mapfile -t CLIENT_IPS < <(
         ss -tnH state established 2>/dev/null |
-            awk -v local_port=":${client_port}" '$4 ~ (local_port "$") {print $5}' |
+            awk -v local_port=":${client_port}" '$3 ~ (local_port "$") {print $4}' |
             while IFS= read -r peer; do
                 printf '%s\n' "${peer}" |
                     sed -E 's/^\[([^]]+)\]:[0-9]+$/\1/; s/^([^:]+):[0-9]+$/\1/'
