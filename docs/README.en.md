@@ -41,7 +41,7 @@ Running without an action asks for a language, shows the project introduction, w
 curl -fsSL https://raw.githubusercontent.com/Sunny8886667/MTProxy/main/install.sh | tr -d '\r' | sudo bash
 ```
 
-This directly installs with safe defaults: Chinese, an automatically generated secret, no tag, automatic public IP detection, ports 443/8888, and one worker.
+This directly installs with safe defaults: Chinese, an automatically generated `dd`-padded secret, no tag, automatic public IP detection, ports 443/8888, and one worker.
 
 For production servers, download and review the script before executing it.
 
