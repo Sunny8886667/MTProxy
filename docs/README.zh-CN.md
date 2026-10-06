@@ -41,7 +41,7 @@ sudo bash install.sh
 curl -fsSL https://raw.githubusercontent.com/Sunny8886667/MTProxy/main/install.sh | tr -d '\r' | sudo bash
 ```
 
-这条命令会直接使用安全默认值安装：中文、自动生成 secret、不设置 tag、自动检测公网 IP、使用 443/8888 端口和 1 个 worker。
+这条命令会直接使用安全默认值安装：中文、自动生成带 `dd` 随机填充的 secret、不设置 tag、自动检测公网 IP、使用 443/8888 端口和 1 个 worker。
 
 生产服务器建议先下载并审查脚本，再执行。
 
