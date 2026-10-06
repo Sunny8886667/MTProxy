@@ -41,7 +41,7 @@ sudo bash install.sh
 curl -fsSL https://raw.githubusercontent.com/Sunny8886667/MTProxy/main/install.sh | tr -d '\r' | sudo bash
 ```
 
-این دستور مستقیماً با مقادیر پیش‌فرض امن نصب می‌کند: زبان چینی، secret خودکار، بدون tag، تشخیص خودکار IP عمومی، پورت‌های ۴۴۳ و ۸۸۸۸ و یک worker.
+این دستور مستقیماً با مقادیر پیش‌فرض امن نصب می‌کند: زبان چینی، secret خودکار با padding تصادفی `dd`، بدون tag، تشخیص خودکار IP عمومی، پورت‌های ۴۴۳ و ۸۸۸۸ و یک worker.
 
 برای سرور production بهتر است ابتدا اسکریپت را دانلود و بررسی کنید.
 
