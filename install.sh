@@ -129,7 +129,7 @@ msg() {
         zh:root_required) printf '请使用 root 运行，示例：sudo bash install.sh' ;;
         zh:systemd_required) printf '当前系统没有可用的 systemd/systemctl，无法安装常驻服务。' ;;
         zh:secret_prompt) printf '请输入 MTProxy secret（直接回车自动生成，输入隐藏）： ' ;;
-        zh:secret_generated) printf '未填写 secret，已自动生成。' ;;
+        zh:secret_generated) printf '未填写 secret，已自动生成带 dd 随机填充的 secret。' ;;
         zh:secret_invalid) printf 'secret 必须是 32 位十六进制；如果输入 dd+32 位，dd 只用于客户端随机填充。' ;;
         zh:tag_prompt) printf '请输入 @MTProxybot 返回的 tag（没有则直接回车跳过）： ' ;;
         zh:tag_invalid) printf 'tag 必须是 @MTProxybot 返回的 32 位十六进制字符串。' ;;
@@ -219,7 +219,7 @@ msg() {
         en:root_required) printf 'Run as root, for example: sudo bash install.sh' ;;
         en:systemd_required) printf 'systemd/systemctl is not available, so a persistent service cannot be installed.' ;;
         en:secret_prompt) printf 'Enter the MTProxy secret (press Enter to generate one; input hidden): ' ;;
-        en:secret_generated) printf 'No secret entered; a new secret was generated.' ;;
+        en:secret_generated) printf 'No secret entered; a new secret with dd random padding was generated.' ;;
         en:secret_invalid) printf 'The secret must be 32 hexadecimal characters; an optional dd+32 form is used only for the client link.' ;;
         en:tag_prompt) printf 'Enter the tag returned by @MTProxybot (press Enter to skip): ' ;;
         en:tag_invalid) printf 'The tag must be the 32-hex-character value returned by @MTProxybot.' ;;
@@ -309,7 +309,7 @@ msg() {
         fa:root_required) printf 'اسکریپت را با root اجرا کنید، مثال: sudo bash install.sh' ;;
         fa:systemd_required) printf 'systemd/systemctl در دسترس نیست و سرویس دائمی نصب نمی‌شود.' ;;
         fa:secret_prompt) printf 'secret مربوط به MTProxy را وارد کنید (Enter برای تولید خودکار؛ ورودی مخفی است): ' ;;
-        fa:secret_generated) printf 'secret وارد نشد؛ secret جدید تولید شد.' ;;
+        fa:secret_generated) printf 'secret وارد نشد؛ secret جدید با padding تصادفی dd تولید شد.' ;;
         fa:secret_invalid) printf 'secret باید ۳۲ کاراکتر هگزادسیمال باشد؛ قالب dd به‌علاوهٔ ۳۲ کاراکتر فقط برای پیوند سمت کاربر است.' ;;
         fa:tag_prompt) printf 'tag دریافتی از @MTProxybot را وارد کنید (برای رد کردن Enter بزنید): ' ;;
         fa:tag_invalid) printf 'tag باید مقدار ۳۲ کاراکتری هگزادسیمال دریافتی از @MTProxybot باشد.' ;;
@@ -874,13 +874,13 @@ ask_settings() {
 
     if [[ -z "${SECRET}" ]]; then
         if [[ "${NONINTERACTIVE}" == "1" ]]; then
-            SECRET="$(openssl rand -hex 16)"
+            SECRET="dd$(openssl rand -hex 16)"
             printf '%s\n' "$(msg secret_generated)"
         else
             read -r -s -p "$(msg secret_prompt)" SECRET
             printf '\n'
             if [[ -z "${SECRET}" ]]; then
-                SECRET="$(openssl rand -hex 16)"
+                SECRET="dd$(openssl rand -hex 16)"
                 printf '%s\n' "$(msg secret_generated)"
             fi
         fi
